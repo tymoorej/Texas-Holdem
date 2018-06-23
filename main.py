@@ -7,7 +7,7 @@ the run time of all the functions we have implimented.
 
 from card import *
 from winning_hand import winner
-from betting import*
+from bot import*
 import cProfile
 import argparse
 import pygame
