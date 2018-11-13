@@ -34,7 +34,7 @@ jobs:
         
       # run tests!
       - run:
-          name: run tests
+          name: Run Tests
           command: |
             . venv/bin/activate
             python3 test/run_tests.py

@@ -7,6 +7,8 @@ import itertools
 from card import *
 from random import *
 
+MONTE_CARLO_ITERATIONS = 10000
+
 
 def bot_bet(current_call, bot, table, can_raise=True):
     """
@@ -104,16 +106,22 @@ def Monte_Carlo(bot, table):
     has and m is the number of cards on the table and p is the number of players
     """
     count = 0
-    for i in range(10000):  #O(10,000)=O(1)
+    for i in range(MONTE_CARLO_ITERATIONS):  #O(10,000)=O(1)
         my_deck = Deck()
         my_deck.remove_card(bot.get_cards()[0])  #O(n)
         my_deck.remove_card(bot.get_cards()[1])  #O(n)
+
+        # for card in table.get_cards():
+        #     my_deck.remove_card(card)
+
         listed_deck = my_deck.get_cards()
         x = sample(listed_deck, 7 - len(table.get_cards()))
         person = Player(0, x[0:2])
         players = [person, bot]
-        table = Table(table.get_cards() + x[2:])
-        if type(winner(table, players,
+        table2 = Table(table.get_cards() + x[2:])
+
+        if type(winner(table2, players,
                        printing=False)) is Bot:  #O(p*xlog(x) + plog(p))
             count += 1
+
     return count

@@ -519,7 +519,7 @@ def end_of_round(cards, table, player, bot, skip):
 
 def main():
     """
-    The main function, it calls setup to initialize evreything then it calls
+    The main function, it calls setup to initialize everything then it calls
     rounds to handel all the different rounds, then calls end of round to handel
     the end of the rounds, finally calls player bet with the done flag turned on
     so the player can see if they won or lost that round.
