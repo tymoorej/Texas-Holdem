@@ -38,23 +38,49 @@ class TestHandMethods(unittest.TestCase):
         self.assertEqual(1, 1)
 
     def test_one_pair(self):
+        suits = ['Hearts', 'Diamonds', 'Spades', 'Clubs']
+        for i in range(number_of_tests):
+            player = Player('p')
+            table = Table()
+            cards_seen = []
+            cards_on_table = randint(0,5)
+            pair_found = False
+
+            for n in range(2):
+                card_value = randint(2,14)
+                card_suit = suits[randint(0,len(suits)-1)]
+                player.add_card((card_value,card_suit))
+                if card_value in cards_seen:
+                    pair_found = True
+                cards_seen.append(card_value)
+
+            for n in range(cards_on_table):
+                card_value = randint(2,14)
+                card_suit = suits[randint(0,len(suits)-1)]
+                table.add_card((card_value,card_suit))
+                if card_value in cards_seen:
+                    pair_found = True
+                cards_seen.append(card_value)
+            result = has_one_pair(table, player)
+            self.assertEqual(pair_found, result)
+
         self.assertEqual(1, 1)
 
     def test_repeated_cards(self):
         self.assertEqual(1, 1)
 
     def test_highest_card(self):
-        num_of_players = randint(1, 50)
-        players = []
-        
-        for i in range(num_of_players):
-            players.append(Player(i+1))
-
         suits = ['Hearts', 'Diamonds', 'Spades', 'Clubs']
-        highest_value = 0
-        players_with_highest_value = set()
-
         for i in range(number_of_tests):
+            num_of_players = randint(1, 50)
+            players = []
+
+            for i in range(num_of_players):
+                players.append(Player(i+1))
+
+            highest_value = 0
+            players_with_highest_value = set()
+
             for p in players:
                 for n in range(2):
                     card_value = randint(2,14)
