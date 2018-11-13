@@ -35,14 +35,39 @@ class TestHandMethods(unittest.TestCase):
         self.assertEqual(1, 1)
 
     def test_two_pair(self):
-        self.assertEqual(1, 1)
+        suits = ['Hearts', 'Diamonds', 'Spades', 'Clubs']
+        for i in range(number_of_tests):
+            player = Player('p')
+            table = Table()
+            cards_on_table = randint(0,5)
+            cards_seen=set()
+            pairs_found = set()
+
+            for n in range(2):
+                card_value = randint(2,14)
+                card_suit = suits[randint(0,len(suits)-1)]
+                player.add_card((card_value,card_suit))
+                if card_value in cards_seen:
+                    pairs_found.add(card_value)
+                cards_seen.add(card_value)
+
+            for n in range(cards_on_table):
+                card_value = randint(2,14)
+                card_suit = suits[randint(0,len(suits)-1)]
+                table.add_card((card_value,card_suit))
+                if card_value in cards_seen:
+                    pairs_found.add(card_value)
+                cards_seen.add(card_value)
+            result = has_two_pair(table, player)
+            self.assertEqual(len(pairs_found) >= 2, result)
+
 
     def test_one_pair(self):
         suits = ['Hearts', 'Diamonds', 'Spades', 'Clubs']
         for i in range(number_of_tests):
             player = Player('p')
             table = Table()
-            cards_seen = []
+            cards_seen = set()
             cards_on_table = randint(0,5)
             pair_found = False
 
@@ -52,7 +77,7 @@ class TestHandMethods(unittest.TestCase):
                 player.add_card((card_value,card_suit))
                 if card_value in cards_seen:
                     pair_found = True
-                cards_seen.append(card_value)
+                cards_seen.add(card_value)
 
             for n in range(cards_on_table):
                 card_value = randint(2,14)
@@ -60,7 +85,7 @@ class TestHandMethods(unittest.TestCase):
                 table.add_card((card_value,card_suit))
                 if card_value in cards_seen:
                     pair_found = True
-                cards_seen.append(card_value)
+                cards_seen.add(card_value)
             result = has_one_pair(table, player)
             self.assertEqual(pair_found, result)
 
