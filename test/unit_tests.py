@@ -9,9 +9,12 @@ from card import *
 from winning_hand import *
 from random import randint
 
-number_of_tests = 1000
-
 class TestHandMethods(unittest.TestCase):
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        self._number_of_tests = 1000
+        self._suits = ['Hearts', 'Diamonds', 'Spades', 'Clubs']
 
     def test_royal_flush(self):
         self.assertEqual(1, 1)
@@ -32,11 +35,35 @@ class TestHandMethods(unittest.TestCase):
         self.assertEqual(1, 1)
 
     def test_three_of_a_kind(self):
-        self.assertEqual(1, 1)
+        for i in range(self._number_of_tests):
+            player = Player('p')
+            table = Table()
+            cards_on_table = randint(0,5)
+            cards_seen = dict()
+
+            for n in range(2):
+                card_value = randint(2,14)
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
+                player.add_card((card_value,card_suit))
+                if card_value in cards_seen:
+                    cards_seen[card_value] += 1
+                else:
+                    cards_seen[card_value] = 1
+                    
+            
+            for n in range(cards_on_table):
+                card_value = randint(2,14)
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
+                table.add_card((card_value,card_suit))
+                if card_value in cards_seen:
+                    cards_seen[card_value] += 1
+                else:
+                    cards_seen[card_value] = 1
+            result = has_three_of_a_kind(table, player)
+            self.assertEqual(max(cards_seen.values())>=3, result)
 
     def test_two_pair(self):
-        suits = ['Hearts', 'Diamonds', 'Spades', 'Clubs']
-        for i in range(number_of_tests):
+        for i in range(self._number_of_tests):
             player = Player('p')
             table = Table()
             cards_on_table = randint(0,5)
@@ -45,7 +72,7 @@ class TestHandMethods(unittest.TestCase):
 
             for n in range(2):
                 card_value = randint(2,14)
-                card_suit = suits[randint(0,len(suits)-1)]
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
                 player.add_card((card_value,card_suit))
                 if card_value in cards_seen:
                     pairs_found.add(card_value)
@@ -53,7 +80,7 @@ class TestHandMethods(unittest.TestCase):
 
             for n in range(cards_on_table):
                 card_value = randint(2,14)
-                card_suit = suits[randint(0,len(suits)-1)]
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
                 table.add_card((card_value,card_suit))
                 if card_value in cards_seen:
                     pairs_found.add(card_value)
@@ -63,8 +90,7 @@ class TestHandMethods(unittest.TestCase):
 
 
     def test_one_pair(self):
-        suits = ['Hearts', 'Diamonds', 'Spades', 'Clubs']
-        for i in range(number_of_tests):
+        for i in range(self._number_of_tests):
             player = Player('p')
             table = Table()
             cards_seen = set()
@@ -73,7 +99,7 @@ class TestHandMethods(unittest.TestCase):
 
             for n in range(2):
                 card_value = randint(2,14)
-                card_suit = suits[randint(0,len(suits)-1)]
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
                 player.add_card((card_value,card_suit))
                 if card_value in cards_seen:
                     pair_found = True
@@ -81,7 +107,7 @@ class TestHandMethods(unittest.TestCase):
 
             for n in range(cards_on_table):
                 card_value = randint(2,14)
-                card_suit = suits[randint(0,len(suits)-1)]
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
                 table.add_card((card_value,card_suit))
                 if card_value in cards_seen:
                     pair_found = True
@@ -95,8 +121,7 @@ class TestHandMethods(unittest.TestCase):
         self.assertEqual(1, 1)
 
     def test_highest_card(self):
-        suits = ['Hearts', 'Diamonds', 'Spades', 'Clubs']
-        for i in range(number_of_tests):
+        for i in range(self._number_of_tests):
             num_of_players = randint(1, 50)
             players = []
 
@@ -109,7 +134,7 @@ class TestHandMethods(unittest.TestCase):
             for p in players:
                 for n in range(2):
                     card_value = randint(2,14)
-                    card_suit = suits[randint(0,len(suits)-1)]
+                    card_suit = self._suits[randint(0,len(self._suits)-1)]
                     if card_value > highest_value:
                         highest_value = card_value
                         players_with_highest_value = set()
