@@ -160,7 +160,6 @@ def if_straight_is_flush(l, table, player):
             elif c[1] == 'Clubs':
                 Clubs += 1
     if Hearts >= 5 or Diamonds >= 5 or Spades >= 5 or Clubs >= 5:
-        print(Hearts, Diamonds, Spades, Clubs, end='\n')
         return True
     return False
 
