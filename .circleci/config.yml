@@ -37,7 +37,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            ~/texas-holdem/test/run_tests.sh
+            python3 test/run_tests.py
 
       - store_artifacts:
           path: test-reports
