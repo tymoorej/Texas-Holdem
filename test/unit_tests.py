@@ -9,7 +9,7 @@ from card import *
 from winning_hand import *
 from random import randint
 
-number_of_tests = 10000
+number_of_tests = 1000
 
 class TestHandMethods(unittest.TestCase):
 
@@ -44,14 +44,31 @@ class TestHandMethods(unittest.TestCase):
         self.assertEqual(1, 1)
 
     def test_highest_card(self):
-        player1 = Player('p1')
-        player2 = Player('p2')
+        num_of_players = randint(1, 50)
+        players = []
+        
+        for i in range(num_of_players):
+            players.append(Player(i+1))
 
-       # for (i in range(number_of_tests)):
+        suits = ['Hearts', 'Diamonds', 'Spades', 'Clubs']
+        highest_value = 0
+        players_with_highest_value = set()
 
+        for i in range(number_of_tests):
+            for p in players:
+                for n in range(2):
+                    card_value = randint(2,14)
+                    card_suit = suits[randint(0,len(suits)-1)]
+                    if card_value > highest_value:
+                        highest_value = card_value
+                        players_with_highest_value = set()
+                        players_with_highest_value.add(p)
+                    elif card_value == highest_value:
+                        players_with_highest_value.add(p)
+                    p.add_card((card_value,card_suit))
+            result = set(highest_card(players))
+            self.assertTrue(result == players_with_highest_value)
 
-
-        self.assertEqual(1, 1)
 
 if __name__ == '__main__':
     unittest.main()
