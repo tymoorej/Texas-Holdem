@@ -1,5 +1,13 @@
 import unittest
 
+import os,sys,inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0,parentdir)
+
+from card import *
+from winning_hand import *
+
 class TestHandMethods(unittest.TestCase):
     def test_royal_flush(self):
         self.assertEqual(1, 1)
@@ -32,6 +40,8 @@ class TestHandMethods(unittest.TestCase):
         self.assertEqual(1, 1)
 
     def test_highest_card(self):
+        player1 = Player('p')
+        player2 = Player('p')
         self.assertEqual(1, 1)
 
 if __name__ == '__main__':
