@@ -596,8 +596,9 @@ def rounds(cards, table, player, bot):
         return check
 
 
-# Determines whether or not to use the profiler based off of the parser args.
-if args.profiler:
-    cProfile.run('main()')
-else:
-    main()
+if __name__ == '__main__':
+    # Determines whether or not to use the profiler based off of the parser args.
+    if args.profiler:
+        cProfile.run('main()')
+    else:
+        main()

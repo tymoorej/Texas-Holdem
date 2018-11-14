@@ -419,7 +419,7 @@ class Table(Player):
 
         Runtime: O(1)
         """
-        super().__init__('t')  # O(1)
+        super().__init__('t', cards)  # O(1)
         self._chips = 0
 
     def __str__(self):
@@ -470,7 +470,7 @@ class Bot(Player):
 
         Runtime: O(1)
         """
-        super().__init__('b')
+        super().__init__('b', cards)
 
     def __str__(self):
         """

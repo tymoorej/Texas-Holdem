@@ -118,9 +118,9 @@ def Monte_Carlo(bot, table):
         x = sample(listed_deck, 7 - len(table.get_cards()))
         person = Player(0, x[0:2])
         players = [person, bot]
-        table2 = Table(table.get_cards() + x[2:])
+        table = Table(table.get_cards() + x[2:])
 
-        if type(winner(table2, players,
+        if type(winner(table, players,
                        printing=False)) is Bot:  #O(p*xlog(x) + plog(p))
             count += 1
 

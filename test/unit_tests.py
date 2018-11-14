@@ -1,13 +1,12 @@
 import unittest
-
-import os,sys,inspect
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0,parentdir)
+import sys, os
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 from card import *
 from winning_hand import *
+from bot import Monte_Carlo, MONTE_CARLO_ITERATIONS
 from random import randint, shuffle
+
 
 class TestHandMethods(unittest.TestCase):
 
@@ -41,7 +40,7 @@ class TestHandMethods(unittest.TestCase):
             start = randint(5,10)
             straight.append((start,self._suits[randint(0,len(self._suits)-1)]))
             
-            if (randint(0,1) == 1):
+            if randint(0,1) == 1:
                 modifier = 1
             else:
                 modifier = -1
@@ -181,6 +180,49 @@ class TestHandMethods(unittest.TestCase):
                     p.add_card((card_value,card_suit))
             result = set(highest_card(players))
             self.assertTrue(result == players_with_highest_value)
+
+    def test_monte_carlo_win(self):
+        bot = Bot()
+        bot.add_card((14, 'Hearts'))
+        bot.add_card((13, 'Hearts'))
+
+        table = Table()
+        table.add_card((12, 'Hearts'))
+        table.add_card((11, 'Hearts'))
+        table.add_card((10, 'Hearts'))
+        table.add_card((2, 'Spades'))
+        table.add_card((3, 'Diamonds'))
+
+        self.assertEqual(MONTE_CARLO_ITERATIONS, Monte_Carlo(bot, table))
+
+    def test_monte_carlo_average(self):
+        # MonteCarlo.get_player_cards = lambda deck: [(9, 'Hearts'), (8, 'Hearts')]
+
+        orig_player_init = Player.__init__
+
+        def GivePlayerCards(self, ID, cards=None):
+            self.ID = ID
+            self._cards = [(9, 'Hearts'), (8, 'Hearts')]
+            self._chips = 2000
+            self._hand = -1
+
+        Player.__init__ = GivePlayerCards
+
+        bot = Bot()
+        bot.add_card((5, 'Hearts'))
+        bot.add_card((9, 'Diamonds'))
+
+        table = Table()
+        table.add_card((12, 'Hearts'))
+        table.add_card((10, 'Hearts'))
+        table.add_card((2, 'Spades'))
+
+        win_count = Monte_Carlo(bot, table)
+
+        Player.__init__ = orig_player_init
+
+        self.assertNotEqual(0, win_count)
+        self.assertNotEqual(MONTE_CARLO_ITERATIONS, win_count)
 
 
 if __name__ == '__main__':
