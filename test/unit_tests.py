@@ -199,14 +199,19 @@ class TestHandMethods(unittest.TestCase):
         # MonteCarlo.get_player_cards = lambda deck: [(9, 'Hearts'), (8, 'Hearts')]
 
         orig_player_init = Player.__init__
+        orig_table_init = Table.__init__
+
+        def GiveTableCards(self, cards=None):
+            self._cards = [] if cards is None else cards
+            self._chips = 0
 
         def GivePlayerCards(self, ID, cards=None):
-            self.ID = ID
             self._cards = [(9, 'Hearts'), (8, 'Hearts')]
             self._chips = 2000
             self._hand = -1
 
         Player.__init__ = GivePlayerCards
+        Table.__init__ = GiveTableCards
 
         bot = Bot()
         bot.add_card((5, 'Hearts'))
@@ -220,9 +225,45 @@ class TestHandMethods(unittest.TestCase):
         win_count = Monte_Carlo(bot, table)
 
         Player.__init__ = orig_player_init
+        Table.__init__ = orig_table_init
 
         self.assertNotEqual(0, win_count)
         self.assertNotEqual(MONTE_CARLO_ITERATIONS, win_count)
+
+    def test_monte_carlo_duplicates(self):
+        # MonteCarlo.get_player_cards = lambda deck: [(9, 'Hearts'), (8, 'Hearts')]
+
+        orig_player_init = Player.__init__
+        orig_table_init = Table.__init__
+        assertEqual = self.assertEqual
+
+        def GiveTableCards(self, cards=None):
+            self._cards = [] if cards is None else cards
+            self._chips = 0
+            assertEqual(len(set(self._cards)), len(self._cards))
+
+        def GivePlayerCards(self, ID, cards=None):
+            self._cards = [] if cards is None else cards
+            self._chips = 2000
+            self._hand = -1
+            assertEqual(len(set(self._cards)), len(self._cards))
+
+        Player.__init__ = GivePlayerCards
+        Table.__init__ = GiveTableCards
+
+        bot = Bot()
+        bot.add_card((5, 'Hearts'))
+        bot.add_card((9, 'Diamonds'))
+
+        table = Table()
+        table.add_card((12, 'Hearts'))
+        table.add_card((10, 'Hearts'))
+        table.add_card((2, 'Spades'))
+
+        Monte_Carlo(bot, table)
+
+        Player.__init__ = orig_player_init
+        Table.__init__ = orig_table_init
 
 
 if __name__ == '__main__':
