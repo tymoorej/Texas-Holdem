@@ -312,6 +312,15 @@ def has_straight(table, player):
     for c in player.get_cards():  # O(n)
         total_cards_seen.add(c[0])
 
+    add1 = False
+    for c in total_cards_seen:
+        if c == 14:
+            add1 = True # adds a 1 if an ace is present, use to detect A,2,3,4,5 straights
+            break
+    if add1:
+        total_cards_seen.add(1) # adds a 1 if an ace is present, use to detect A,2,3,4,5 straights
+        
+
     # For runtime purposes denote x=n+m
     sorted_cards_seen = list(sorted(total_cards_seen))  # O(xlog(x))
     counter = 0

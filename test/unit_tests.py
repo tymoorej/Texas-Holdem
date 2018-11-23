@@ -28,6 +28,16 @@ class TestHandMethods(unittest.TestCase):
         self.assertEqual(1, 1)
 
     def test_flush(self):
+        for i in range(self._number_of_tests):
+            player = Player('p')
+            table = Table()
+
+            cards_on_table = randint(0,5)
+            cards = []
+            
+        self.assertEqual(1, 1)
+
+    def test_not_flush(self):
         self.assertEqual(1, 1)
 
     def test_straight(self):
@@ -55,21 +65,57 @@ class TestHandMethods(unittest.TestCase):
                 card_suit = self._suits[randint(0,len(self._suits)-1)]
                 straight.append((card_value,card_suit))
             shuffle(straight)
-            
+
             for i,s in enumerate(straight):
                 if i <= 1:
                     player.add_card(s)
                 else:
                     table.add_card(s)
             result = has_straight(table, player)
-            if not result:
-                print("\n")
-                print(table.get_cards())
-                print(player.get_cards())
             self.assertTrue(result)
     
     def test_not_straight(self):
-        self.assertEqual(1, 1)
+        for i in range(self._number_of_tests):
+            player = Player('p')
+            table = Table()
+
+            cards_on_table = randint(0,5)
+            cards = []
+            cards_adjusted = set()
+
+            for i in range(cards_on_table + 2):
+                card_value = randint(2,14)
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
+                cards.append((card_value,card_suit))
+                cards_adjusted.add(card_value)
+                if card_value == 14:
+                    cards_adjusted.add(1)
+            
+            cards = cards
+            if 14 in cards_adjusted:
+                cards_adjusted.add(1)
+
+            skip_to_next = False
+            for i in range(1,11):
+                if set(range(i,i+5)).issubset(cards_adjusted):
+                    skip_to_next = True
+                    continue
+            
+            if skip_to_next:
+                continue
+
+            for i,c in enumerate(cards):
+                if i <= 1:
+                    player.add_card(c)
+                else:
+                    table.add_card(c)
+
+            result = has_straight(table, player)
+
+            if result:
+                print(cards)
+
+            self.assertFalse(result)
 
     def test_three_of_a_kind(self):
         for i in range(self._number_of_tests):

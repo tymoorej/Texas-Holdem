@@ -1,7 +1,7 @@
 import unittest
 import pygame
 
-from main import setup, rounds, end_of_round, player_bet
+# from main import setup, rounds, end_of_round, player_bet
 
 
 class DoneFlag:
