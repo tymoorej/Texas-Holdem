@@ -362,9 +362,6 @@ class TestHandMethods(unittest.TestCase):
 
         self.assertEqual(1, 1)
 
-    def test_repeated_cards(self):
-        self.assertEqual(1, 1)
-
     def test_highest_card(self):
         for i in range(self._number_of_tests):
             num_of_players = randint(1, 50)
