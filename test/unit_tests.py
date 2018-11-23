@@ -22,7 +22,56 @@ class TestHandMethods(unittest.TestCase):
         self.assertEqual(1, 1)
 
     def test_four_of_a_kind(self):
-        self.assertEqual(1, 1)
+
+        # Testing all equivalence classes of four of a kind
+        for i in range(2,15):
+            player = Player('p')
+            table = Table()
+
+            cards = []
+
+            # four of a kind
+            for j in range(4):
+                cards.append((i,self._suits[j]))
+
+            # the remaining cards
+            for j in range(3):
+                card_value = randint(2,14)
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
+                while ((card_value, card_suit) in cards):
+                    card_suit = self._suits[randint(0,len(self._suits)-1)]
+                    card_value = randint(2,14)
+
+            for i,c in enumerate(cards):
+                if i <= 1:
+                    player.add_card(c)
+                else:
+                    table.add_card(c)
+            result = has_four_of_a_kind(table, player)
+            self.assertTrue(result)
+
+    def test_not_four_of_a_kind(self):
+        for i in range(self._number_of_tests):
+            player = Player('p')
+            table = Table()
+            cards_on_table = randint(3,5)
+            cards = []
+
+            for i in range(cards_on_table + 2):
+                card_value = randint(2,14)
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
+                while ((card_value, card_suit) in cards or len([ c for c in cards if c[0] == card_value]) == 3 ):
+                    card_suit = self._suits[randint(0,len(self._suits)-1)]
+                    card_value = randint(2,14)
+                cards.append((card_value, card_suit))
+
+            for i,c in enumerate(cards):
+                if i <= 1:
+                    player.add_card(c)
+                else:
+                    table.add_card(c)            
+            result = has_four_of_a_kind(table, player)
+            self.assertFalse(result)            
 
     def test_full_house(self):
         for i in range(self._number_of_tests):
@@ -64,8 +113,6 @@ class TestHandMethods(unittest.TestCase):
                 else:
                     table.add_card(c)            
             result = has_full_house(table, player)
-            if not result:
-                print(cards)
             self.assertTrue(result)
 
     def test_not_full_house(self):
