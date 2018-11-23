@@ -32,11 +32,74 @@ class TestHandMethods(unittest.TestCase):
             cards_on_table = randint(3,5)
             cards = []
 
-        
-        self.assertEqual(1, 1)
+            triplecardvalue = randint(2,14)
+            doublecardvalue = randint(2,14)
+
+            while triplecardvalue == doublecardvalue:
+                doublecardvalue = randint(2,14)
+            
+            for i in range(5):
+                if i < 3:
+                    card_suit = self._suits[randint(0,len(self._suits)-1)]
+                    while ((triplecardvalue, card_suit) in cards):
+                        card_suit = self._suits[randint(0,len(self._suits)-1)]
+                    cards.append((triplecardvalue,card_suit))
+                else:
+                    card_suit = self._suits[randint(0,len(self._suits)-1)]
+                    while ((doublecardvalue, card_suit) in cards):
+                        card_suit = self._suits[randint(0,len(self._suits)-1)]
+                    cards.append((doublecardvalue,card_suit))
+
+            while len(cards) < cards_on_table + 2:
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
+                card_value = randint(2,14)
+                while ((card_value, card_suit) in cards):
+                    card_suit = self._suits[randint(0,len(self._suits)-1)]
+                    card_value = randint(2,14)
+                cards.append((card_value, card_suit))
+
+            for i,c in enumerate(cards):
+                if i <= 1:
+                    player.add_card(c)
+                else:
+                    table.add_card(c)            
+            result = has_full_house(table, player)
+            if not result:
+                print(cards)
+            self.assertTrue(result)
 
     def test_not_full_house(self):
-        self.assertEqual(1, 1)
+        for i in range(self._number_of_tests):
+            player = Player('p')
+            table = Table()
+
+            cards_on_table = randint(0,5)
+            triplits = set()
+            pairs = set()
+            cards = []
+
+            for i in range(cards_on_table + 2):
+                card_value = randint(2,14)
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
+                while (len(triplits) == 1 and card_value in [card[0] for card in cards]) \
+                or (len(pairs) >=2 and card_value in pairs) \
+                or (card_value, card_suit) in cards:
+                    card_value = randint(2,14)
+                    card_suit = self._suits[randint(0,len(self._suits)-1)]
+                cards.append((card_value, card_suit))
+                if len([card[0] for card in cards if card[0] == card_value]) == 2:
+                    pairs.add(card_value)
+                elif len([card[0] for card in cards if card[0] == card_value]) == 3:
+                    triplits.add(card_value)
+
+            for i,c in enumerate(cards):
+                if i <= 1:
+                    player.add_card(c)
+                else:
+                    table.add_card(c)            
+   
+            result = has_full_house(table, player)
+            self.assertFalse(result)
 
     def test_flush(self):
         for i in range(self._number_of_tests):

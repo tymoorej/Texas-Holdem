@@ -245,7 +245,10 @@ def has_full_house(table, player):
             pairs.add(k)
         if seen[k] >= 3:
             triples.add(k)
-    if len(triples) > 0:
+
+    if len(triples) > 1:
+        return True
+    elif len(triples) > 0:
         for p in pairs:
             if p not in triples:
                 return True
