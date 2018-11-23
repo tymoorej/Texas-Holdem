@@ -32,13 +32,57 @@ class TestHandMethods(unittest.TestCase):
             player = Player('p')
             table = Table()
 
-            cards_on_table = randint(0,5)
+            cards_on_table = randint(3,5)
+            card_suit = self._suits[randint(0,len(self._suits)-1)]
             cards = []
+
+            for i in range(5):
+                card_value = randint(2,14)
+                while (card_value in [card[0] for card in cards]):
+                    card_value = randint(2,14)
+                cards.append((card_value, card_suit))
             
-        self.assertEqual(1, 1)
+            while len(cards) < cards_on_table + 2:
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
+                card_value = randint(2,14)
+                while (card_value in [card[0] for card in cards]):
+                    card_value = randint(2,14)
+                cards.append((card_value, card_suit))
+            
+            for i,c in enumerate(cards):
+                if i <= 1:
+                    player.add_card(c)
+                else:
+                    table.add_card(c)            
+            result = has_flush(table, player)
+            self.assertTrue(result)
 
     def test_not_flush(self):
-        self.assertEqual(1, 1)
+        for i in range(self._number_of_tests):
+            player = Player('p')
+            table = Table()
+
+            cards_on_table = randint(0,5)
+
+            suits_seen = []
+            cards = []
+
+            for i in range(cards_on_table + 2):
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
+                while len( [s for s in suits_seen if s == card_suit] ) == 4: # prevent flush
+                    card_suit = self._suits[randint(0,len(self._suits)-1)]
+                suits_seen.append(card_suit)
+                card_value = randint(2,14)
+                while (card_value in [card[0] for card in cards]):
+                    card_value = randint(2,14)
+
+            for i,c in enumerate(cards):
+                if i <= 1:
+                    player.add_card(c)
+                else:
+                    table.add_card(c)            
+            result = has_flush(table, player)
+            self.assertFalse(result)
 
     def test_straight(self):
         for i in range(self._number_of_tests):
@@ -99,7 +143,7 @@ class TestHandMethods(unittest.TestCase):
             for i in range(1,11):
                 if set(range(i,i+5)).issubset(cards_adjusted):
                     skip_to_next = True
-                    continue
+                    break
             
             if skip_to_next:
                 continue
@@ -111,9 +155,6 @@ class TestHandMethods(unittest.TestCase):
                     table.add_card(c)
 
             result = has_straight(table, player)
-
-            if result:
-                print(cards)
 
             self.assertFalse(result)
 
