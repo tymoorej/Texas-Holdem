@@ -25,6 +25,17 @@ class TestHandMethods(unittest.TestCase):
         self.assertEqual(1, 1)
 
     def test_full_house(self):
+        for i in range(self._number_of_tests):
+            player = Player('p')
+            table = Table()
+
+            cards_on_table = randint(3,5)
+            cards = []
+
+        
+        self.assertEqual(1, 1)
+
+    def test_not_full_house(self):
         self.assertEqual(1, 1)
 
     def test_flush(self):
@@ -45,7 +56,8 @@ class TestHandMethods(unittest.TestCase):
             while len(cards) < cards_on_table + 2:
                 card_suit = self._suits[randint(0,len(self._suits)-1)]
                 card_value = randint(2,14)
-                while (card_value in [card[0] for card in cards]):
+                while ((card_value, card_suit) in cards):
+                    card_suit = self._suits[randint(0,len(self._suits)-1)]
                     card_value = randint(2,14)
                 cards.append((card_value, card_suit))
             
@@ -69,12 +81,12 @@ class TestHandMethods(unittest.TestCase):
 
             for i in range(cards_on_table + 2):
                 card_suit = self._suits[randint(0,len(self._suits)-1)]
-                while len( [s for s in suits_seen if s == card_suit] ) == 4: # prevent flush
-                    card_suit = self._suits[randint(0,len(self._suits)-1)]
-                suits_seen.append(card_suit)
                 card_value = randint(2,14)
-                while (card_value in [card[0] for card in cards]):
+                while (len( [s for s in suits_seen if s == card_suit] ) == 4) or (card_value, card_suit) in cards: # prevent flush
+                    card_suit = self._suits[randint(0,len(self._suits)-1)]
                     card_value = randint(2,14)
+                suits_seen.append(card_suit)
+                cards.append((card_value,card_suit))
 
             for i,c in enumerate(cards):
                 if i <= 1:
