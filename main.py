@@ -29,13 +29,22 @@ parser.add_argument(
 args = parser.parse_args()
 
 r = 0  # the round number, only used for testing
-game = Game()
 black = (0, 0, 0)
 white = (255, 255, 255)
 grey = (200, 200, 200)
 
 
-def start_screen():
+def point_in_rect(point, rect):
+    """
+    :param point: an (x, y) tuple and
+    :param rect: rect is a (x, y, w, h) tuple where (x, y) is the top left coordinate
+    :return: if point is inside rect (boundary included)
+    """
+    return rect[0] <= point[0] <= rect[0] + rect[2] and \
+        rect[1] <= point[1] <= rect[1] + rect[3]
+
+
+def start_screen(game):
     """
     This function initializes the start screen that the user will see when they
     first run the code, all it has on it is a background and a button advancing
@@ -47,40 +56,34 @@ def start_screen():
 
     Runtime: N/A since it runs until the user clicks "Start game"
     """
-    global game
 
     game.window.blit(game.title_image, (0, 0))
     pygame.display.update()
-    x = game.width / 2
-    y = game.height / 2 - 200
-    dx = 170
-    dy = 35
+    start_button_rect = (game.width / 2, game.height / 2 - 200, 170, 35)
     end = False
-    over_top = False
     while end is False:
-        for event in pygame.event.get():
+        for event in game.get_events():
             if event.type == pygame.QUIT:
                 end = True
                 game.game_over = True
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if over_top is True:
+                if point_in_rect(event.dict['pos'], start_button_rect):
+                    print(event.dict['pos'])
                     end = True
         game.window.blit(game.title_image, (0, 0))
         position = pygame.mouse.get_pos()
-        if x <= position[0] <= x + dx and y <= position[1] <= y + dy:
-            pygame.draw.rect(game.window, grey, (x, y, dx, dy))
-            over_top = True
+        if point_in_rect(position, start_button_rect):
+            pygame.draw.rect(game.window, grey, start_button_rect)
         else:
-            pygame.draw.rect(game.window, white, (x, y, dx, dy))
-            over_top = False
+            pygame.draw.rect(game.window, white, start_button_rect)
         myfont = pygame.font.SysFont("monospace", 25)
         start_label = myfont.render("Start Game", 1, black)
-        game.window.blit(start_label, (x, y))
+        game.window.blit(start_label, tuple(start_button_rect[:2]))
         pygame.display.update()
         game.clock.tick(60)  # fps
 
 
-def player_bet(current_call, player, bot, table, can_raise=True, done=False):
+def player_bet(game, current_call, player, bot, table, can_raise=True, done=False):
     """
     This function handels both the player's decision(whether to bet, fold, etc...)
     also while handelling all printing to the screen, it will run until the user
@@ -98,7 +101,6 @@ def player_bet(current_call, player, bot, table, can_raise=True, done=False):
 
     Runtime: N/A since it runs until the user makes a selection
     """
-    global game
 
     game.window.blit(game.empty_table, (0, 0))
     pygame.display.update()
@@ -115,6 +117,11 @@ def player_bet(current_call, player, bot, table, can_raise=True, done=False):
 
     second_card = pygame.image.load("PNG-cards-1.3/" + name2)
     second_card = pygame.transform.scale(second_card, (100, 145))
+
+    button1 = (20, 500, 100, 50)
+    button2 = (160, 500, 100, 50)
+    button3 = (300, 500, 100, 50)
+    button_done = (150, 600, 100, 50)
 
     if not done:
         facedown = pygame.image.load("PNG-cards-1.3/" + "facedown.jpg")
@@ -149,11 +156,12 @@ def player_bet(current_call, player, bot, table, can_raise=True, done=False):
     Bet = False
     userinput = ''
     while end is False:
-        for event in pygame.event.get():
+        for event in game.get_events():
             if event.type == pygame.QUIT:
                 end = True
                 game.game_over = True
             if event.type == pygame.MOUSEBUTTONDOWN:
+                print(event.dict['pos'])
                 if over_d:
                     end = True
                 if over1:
@@ -243,16 +251,12 @@ def player_bet(current_call, player, bot, table, can_raise=True, done=False):
         position = pygame.mouse.get_pos()
         if not done:
 
-            x1 = 20
-            y1 = 500
-            dx1 = 100
-            dy1 = 50
-
-            if x1 <= position[0] <= x1 + dx1 and y1 <= position[1] <= y1 + dy1:
-                pygame.draw.rect(game.window, grey, (x1, y1, dx1, dy1))
+            # Button 1
+            if point_in_rect(position, button1):
+                pygame.draw.rect(game.window, grey, button1)
                 over1 = True
             else:
-                pygame.draw.rect(game.window, white, (x1, y1, dx1, dy1))
+                pygame.draw.rect(game.window, white, button1)
                 over1 = False
 
             if current_call > 0:
@@ -261,40 +265,32 @@ def player_bet(current_call, player, bot, table, can_raise=True, done=False):
             else:
                 b1 = myfont.render("Bet", 1, black)
 
-            game.window.blit(b1, (x1 + dx1 / 6, y1 + dy1 / 6))
+            game.window.blit(b1, (button1[0] + button1[2] / 6, button1[1] + button1[3] / 6))
 
-            x2 = 160
-            y2 = 500
-            dx2 = 100
-            dy2 = 50
-
-            if x2 <= position[0] <= x2 + dx2 and y2 <= position[1] <= y2 + dy2:
-                pygame.draw.rect(game.window, grey, (x2, y2, dx2, dy2))
+            # Button 2
+            if point_in_rect(position, button2):
+                pygame.draw.rect(game.window, grey, button2)
                 over2 = True
             else:
-                pygame.draw.rect(game.window, white, (x2, y2, dx2, dy2))
+                pygame.draw.rect(game.window, white, button2)
                 over2 = False
 
             if current_call > 0:
                 b2 = myfont.render("Call", 1, black)
             else:
                 b2 = myfont.render("Check", 1, black)
-            game.window.blit(b2, (x2 + dx2 / 6, y2 + dy2 / 6))
+            game.window.blit(b2, (button2[0] + button2[2] / 6, button2[1] + button2[3] / 6))
 
-            x3 = 300
-            y3 = 500
-            dx3 = 100
-            dy3 = 50
-
-            if x3 <= position[0] <= x3 + dx3 and y3 <= position[1] <= y3 + dy3:
-                pygame.draw.rect(game.window, grey, (x3, y3, dx3, dy3))
+            # Button 3
+            if point_in_rect(position, button3):
+                pygame.draw.rect(game.window, grey, button3)
                 over3 = True
             else:
-                pygame.draw.rect(game.window, white, (x3, y3, dx3, dy3))
+                pygame.draw.rect(game.window, white, button3)
                 over3 = False
 
             b3 = myfont.render("Fold", 1, black)
-            game.window.blit(b3, (x3 + dx3 / 6, y3 + dy3 / 6))
+            game.window.blit(b3, (button3[0] + button3[2] / 6, button3[1] + button3[3] / 6))
 
             if Raise or Bet:
                 quest = myfont.render("By how much?", 1, white)
@@ -303,12 +299,6 @@ def player_bet(current_call, player, bot, table, can_raise=True, done=False):
                 game.window.blit(ans, (220, 600))
 
         else:
-
-            x = 150
-            y = 600
-            dx = 100
-            dy = 50
-
             if player.get_chips() == 0:
                 win = myfont.render("Bot is the winner!", 1, white)
                 game.window.blit(win, (10, 500))
@@ -317,15 +307,15 @@ def player_bet(current_call, player, bot, table, can_raise=True, done=False):
                 win = myfont.render("Player is the winner!", 1, white)
                 game.window.blit(win, (10, 500))
 
-            if x <= position[0] <= x + dx and y <= position[1] <= y + dy:
-                pygame.draw.rect(game.window, grey, (x, y, dx, dy))
+            if point_in_rect(position, button_done):
+                pygame.draw.rect(game.window, grey, button_done)
                 over_d = True
             else:
-                pygame.draw.rect(game.window, white, (x, y, dx, dy))
+                pygame.draw.rect(game.window, white, button_done)
                 over_d = False
 
             b_d = myfont.render("Done", 1, black)
-            game.window.blit(b_d, (x + dx / 4, y + dy / 4))
+            game.window.blit(b_d, (button_done[0] + button_done[2] / 4, button_done[1] + button_done[3] / 4))
 
         pygame.display.update()
         game.clock.tick(60)  # fps
@@ -354,7 +344,7 @@ def get_file_name(card):
     return cardfilename
 
 
-def bet_call(player, bot, table):
+def bet_call(game, player, bot, table):
     """
     This function handels the case where either the player or bot folds or
     goes all in.
@@ -373,7 +363,7 @@ def bet_call(player, bot, table):
     Runtime: N/A since dependent on user input
     """
     skip_to_end = 0
-    d = bet(player, bot, table)  # Runtime dependent on user input
+    d = bet(game, player, bot, table)  # Runtime dependent on user input
     if type(d) is tuple:
         if d[0] == 'All in':
             skip_to_end = 1
@@ -390,7 +380,7 @@ def bet_call(player, bot, table):
     return skip_to_end
 
 
-def bet(player, bot, table):
+def bet(game, player, bot, table):
     """
     For each round this function handells all the betting by letting the player
     bet and then the bot bet, the player and bot can keep betting and Raising and
@@ -417,13 +407,12 @@ def bet(player, bot, table):
     while True:
         print('Player turn')
         if bot.get_chips() == 0:
-            current_call = player_bet(
-                current_call, player, bot, table, can_raise=False)
+            current_call = player_bet(game, current_call, player, bot, table, can_raise=False)
             if game.is_over():
                 pygame.quit()
                 quit()
         else:
-            current_call = player_bet(current_call, player, bot, table)
+            current_call = player_bet(game, current_call, player, bot, table)
             if game.is_over():
                 pygame.quit()
                 quit()
@@ -460,7 +449,7 @@ def bet(player, bot, table):
     return True
 
 
-def setup():
+def setup(game):
     """
     Sets up the screen, and initializes the player, deck, bot and table objects
 
@@ -474,7 +463,7 @@ def setup():
 
     Runtime: N/A since it is dependent on user input
     """
-    start_screen()  # Runtime dependent on user input
+    start_screen(game)  # Runtime dependent on user input
     if game.is_over():
         pygame.quit()
         quit()
@@ -521,7 +510,7 @@ def end_of_round(cards, table, player, bot, skip):
     print('\n' * 5)
 
 
-def main():
+def main(game):
     """
     The main function, it calls setup to initialize everything then it calls
     rounds to handel all the different rounds, then calls end of round to handel
@@ -535,22 +524,20 @@ def main():
     Runtime: N/A since it depends on user input and the playstyle of the player
     and bot (if they bet or fold or etc..)
     """
-    global game
-
     game.init()
 
-    cards, table, player, bot = setup()
+    cards, table, player, bot = setup(game)
     while True:
-        skip = rounds(cards, table, player, bot)
+        skip = rounds(game, cards, table, player, bot)
         end_of_round(cards, table, player, bot, skip)
-        player_bet(0, player, bot, table, done=True)
+        player_bet(game, 0, player, bot, table, done=True)
         if game.is_over() or player.get_chips() <= 0 or bot.get_chips() <= 0:
             pygame.quit()
             quit()
         cards.collect([player, bot, table])
 
 
-def rounds(cards, table, player, bot):
+def rounds(game, cards, table, player, bot):
     """
     This funtion handels all the different rounds, it starts off when there is
     no cards on the table, then gives the user and the bot an ability to determine
@@ -581,33 +568,35 @@ def rounds(cards, table, player, bot):
     cards.deal([player, bot], 2)
     player.print_cards()
     bot.print_cards()
-    check = bet_call(player, bot, table)
+    check = bet_call(game, player, bot, table)
     if check == 1 or check == 2:
         return check
 
     cards.push_to_table(table, 3)
     table.print_cards()
-    check = bet_call(player, bot, table)
+    check = bet_call(game, player, bot, table)
     if check == 1 or check == 2:
         return check
 
     cards.push_to_table(table, 1)
     table.print_cards()
-    check = bet_call(player, bot, table)
+    check = bet_call(game, player, bot, table)
     if check == 1 or check == 2:
         return check
 
     cards.push_to_table(table, 1)
     table.print_cards()
-    check = bet_call(player, bot, table)
+    check = bet_call(game, player, bot, table)
     if check == 1 or check == 2:
         return check
 
 
 if __name__ == '__main__':
 
+    game = Game()
+
     # Determines whether or not to use the profiler based off of the parser args.
     if args.profiler:
-        cProfile.run('main()')
+        cProfile.run('main(game)')
     else:
-        main()
+        main(game)

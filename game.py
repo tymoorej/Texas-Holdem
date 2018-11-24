@@ -2,10 +2,16 @@
 This file sets up all the global variables needed for the pygame visualization
 """
 import pygame
+import enum
+
+
+class GameState(enum.Enum):
+    START = 0
 
 
 class Game:
     def __init__(self):
+        self.state = GameState.START
         self.width = 1300
         self.height = 700
         self.window = None
@@ -29,6 +35,9 @@ class Game:
         self.empty_table = pygame.transform.scale(self.empty_table, (self.width, self.height))  # resizing
 
         self.game_over = False
+
+    def get_events(self):
+        return pygame.event.get()
 
     def is_over(self):
         return self.game_over
