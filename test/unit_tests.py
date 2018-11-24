@@ -57,7 +57,55 @@ class TestHandMethods(unittest.TestCase):
             self.assertTrue(result)
 
     def test_not_straight_flush(self):
-        self.assertEqual(1, 1)
+        for i in range(self._number_of_tests):
+            player = Player('p')
+            table = Table()
+            cards_on_table = randint(0,5)
+            cards = []
+
+            for i in range(cards_on_table + 2):
+                card_value = randint(2,14)
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
+                while (card_value, card_suit) in cards:
+                    card_suit = self._suits[randint(0,len(self._suits)-1)]
+                    card_value = randint(2,14)
+                cards.append((card_value, card_suit))
+
+            cards_adjusted = cards.copy()
+            
+            for c in cards:
+                if c[0] == 14:
+                    cards_adjusted.append((1,c[1]))
+
+            def get_card(number, cards):
+                for c in cards:
+                    if c[0] == number:
+                        return c
+            
+            def is_straight_also_flush(start, end, cards):
+                suits_seen = set()
+                for i in range(start, end+1):
+                    suits_seen.add(get_card(i, cards)[1])
+                return len(suits_seen) == 1
+
+            skip_to_next = False
+            for i in range(1,11):
+                if set(range(i,i+5)).issubset(set( [c[0] for c in cards_adjusted ] )):
+                    if is_straight_also_flush(i, i+4, cards_adjusted):
+                        skip_to_next = True
+                        break
+            
+            if skip_to_next:
+                continue
+
+            shuffle(cards)
+            for i,c in enumerate(cards):
+                if i <= 1:
+                    player.add_card(c)
+                else:
+                    table.add_card(c)            
+            result = has_straight_flush(table, player)
+            self.assertFalse(result)   
 
     def test_four_of_a_kind(self):
 
