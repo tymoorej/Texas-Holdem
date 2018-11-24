@@ -4,14 +4,21 @@ This file sets up all the global variables needed for the pygame visualization
 import pygame
 import enum
 
-PRE_FLOP = 0
-FLOP = 1
-TURN = 2
-RIVER = 3
-
 
 class GameException(Exception):
     pass
+
+
+class RoundType(enum.IntEnum):
+    PRE_FLOP = 0
+    FLOP = 1
+    TURN = 2
+    RIVER = 3
+
+
+class PlayerType(enum.IntEnum):
+    PLAYER = 0
+    BOT = 1
 
 
 class GameState(enum.Enum):
@@ -36,20 +43,29 @@ class GameState(enum.Enum):
     END_ROUND = 18
 
     @staticmethod
+    def state_from_types(round_type, player_type, force):
+        return GameState(round_type * 4 + player_type * 2 + force)
+
+    @staticmethod
     def calc_state(table, player_turn, force):
         table_card_count = len(table.get_cards())
         if table_card_count == 0:
-            turn = PRE_FLOP
+            round_type = RoundType.PRE_FLOP
         elif table_card_count == 3:
-            turn = FLOP
+            round_type = RoundType.FLOP
         elif table_card_count == 4:
-            turn = TURN
+            round_type = RoundType.TURN
         elif table_card_count == 5:
-            turn = RIVER
+            round_type = RoundType.RIVER
         else:
             raise GameException("Invalid amount of cards on the table")
 
-        return GameState(turn * 4 + (not player_turn) * 2 + force)
+        if player_turn:
+            player_type = PlayerType.PLAYER
+        else:
+            player_type = PlayerType.BOT
+
+        return GameState.state_from_types(round_type, player_type, force)
 
 
 class Game:

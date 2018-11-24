@@ -2,7 +2,7 @@ import unittest
 import pygame
 import time
 import sys, os
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, os.path.join(sys.path[0], '../..'))
 
 from game import Game, GameState
 from main import main
@@ -15,12 +15,12 @@ class ExitTestException(Exception):
 class PreClickedGame(Game):
     def __init__(self, click_list):
         super().__init__()
-        self.click_list = click_list
-        self.click_gen = self.make_click_gen()
+        self.click_gen = self.make_click_gen(click_list)
 
-    def make_click_gen(self):
-        for c in self.click_list:
-            time.sleep(0.5)
+    @staticmethod
+    def make_click_gen(click_list):
+        for c in click_list:
+            # time.sleep(0.5)
             yield c
         raise ExitTestException()
 
@@ -54,6 +54,26 @@ class StateTestCase(unittest.TestCase):
             return
 
         self.fail("Game should not have ended")
+
+    def test_check(self):
+        game = PreClickedGame([
+            self.start_click,
+            self.middle_click,
+        ])
+
+        try:
+            main(game)
+        except ExitTestException:
+            self.assertTrue(
+                game.state == GameState.PLAYER_PREFLOP_FORCE or
+                game.state == GameState.PLAYER_FLOP_OPEN
+            )
+            return
+
+        self.fail("Game should not have ended")
+
+    def tearDown(self):
+        pygame.quit()
 
 
 if __name__ == "__main__":

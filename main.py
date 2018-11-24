@@ -102,7 +102,6 @@ def player_bet(game, current_call, player, bot, table, can_raise=True, done=Fals
 
     Runtime: N/A since it runs until the user makes a selection
     """
-    game.infer_state(True, table, current_call, can_raise, done)
 
     game.window.blit(game.empty_table, (0, 0))
     pygame.display.update()
@@ -150,10 +149,6 @@ def player_bet(game, current_call, player, bot, table, can_raise=True, done=Fals
     chips = pygame.image.load("PNG-cards-1.3/chips.png")
     chips = pygame.transform.scale(chips, (100, 145))
 
-    over1 = False
-    over2 = False
-    over3 = False
-    over_d = False
     Raise = False
     Bet = False
     userinput = ''
@@ -163,37 +158,42 @@ def player_bet(game, current_call, player, bot, table, can_raise=True, done=Fals
                 end = True
                 game.game_over = True
             if event.type == pygame.MOUSEBUTTONDOWN:
-                print(event.dict['pos'])
-                if over_d:
-                    end = True
-                if over1:
-                    if current_call > 0 and can_raise < player.get_chips():
-                        print("Raising")
-                        Raise = True
+                click_pos = event.dict['pos']
+                if done:
+                    if point_in_rect(click_pos, button_done):
+                        end = True
+                if not done:
+                    if point_in_rect(click_pos, button1):
+                        if current_call > 0 and can_raise < player.get_chips():
+                            print("Raising")
+                            Raise = True
 
-                    if current_call <= 0 and player.get_chips() > 0:
-                        print("Betting")
-                        Bet = True
+                        if current_call <= 0 and player.get_chips() > 0:
+                            print("Betting")
+                            Bet = True
 
-                if over2 and not Raise and not Bet:
-                    if current_call > 0:
-                        print("Calling")
-                        if current_call > player.get_chips():
-                            chip = player.get_chips()
-                            player.remove_chips(chip)
-                            table.add_chips(chip)
+                    if point_in_rect(click_pos, button2) and not Raise and not Bet:
+                        if current_call > 0:
+                            print("Calling")
+                            if current_call > player.get_chips():
+                                chip = player.get_chips()
+                                player.remove_chips(chip)
+                                table.add_chips(chip)
+                            else:
+                                player.remove_chips(current_call)
+                                table.add_chips(current_call)
+                                game.infer_state(
+                                    False, table, current_call, bot.get_chips() > 0 and player.get_chips() > 0, False)
+                            return -1
                         else:
-                            player.remove_chips(current_call)
-                            table.add_chips(current_call)
-                        return -1
+                            print("Checking")
+                            game.infer_state(
+                                False, table, current_call, bot.get_chips() > 0 and player.get_chips() > 0, False)
+                            return 0
 
-                    else:
-                        print("Checking")
-                        return 0
-
-                if over3 and not Raise and not Bet:
-                    print('Folding')
-                    return 'Fold'
+                    if point_in_rect(click_pos, button3) and not Raise and not Bet:
+                        print('Folding')
+                        return 'Fold'
 
             if (Raise or Bet) and event.type == pygame.KEYDOWN:
                 if event.unicode.isdigit():
@@ -208,6 +208,7 @@ def player_bet(game, current_call, player, bot, table, can_raise=True, done=Fals
                         else:
                             player.remove_chips(converted_input + current_call)
                             table.add_chips(converted_input + current_call)
+                            game.set_game_state()
                             return converted_input
                     if Bet:
                         if converted_input > player.get_chips():
@@ -256,10 +257,8 @@ def player_bet(game, current_call, player, bot, table, can_raise=True, done=Fals
             # Button 1
             if point_in_rect(position, button1):
                 pygame.draw.rect(game.window, grey, button1)
-                over1 = True
             else:
                 pygame.draw.rect(game.window, white, button1)
-                over1 = False
 
             if current_call > 0:
                 b1 = myfont.render("Raise", 1, black)
@@ -272,10 +271,8 @@ def player_bet(game, current_call, player, bot, table, can_raise=True, done=Fals
             # Button 2
             if point_in_rect(position, button2):
                 pygame.draw.rect(game.window, grey, button2)
-                over2 = True
             else:
                 pygame.draw.rect(game.window, white, button2)
-                over2 = False
 
             if current_call > 0:
                 b2 = myfont.render("Call", 1, black)
@@ -286,10 +283,8 @@ def player_bet(game, current_call, player, bot, table, can_raise=True, done=Fals
             # Button 3
             if point_in_rect(position, button3):
                 pygame.draw.rect(game.window, grey, button3)
-                over3 = True
             else:
                 pygame.draw.rect(game.window, white, button3)
-                over3 = False
 
             b3 = myfont.render("Fold", 1, black)
             game.window.blit(b3, (button3[0] + button3[2] / 6, button3[1] + button3[3] / 6))
@@ -311,10 +306,8 @@ def player_bet(game, current_call, player, bot, table, can_raise=True, done=Fals
 
             if point_in_rect(position, button_done):
                 pygame.draw.rect(game.window, grey, button_done)
-                over_d = True
             else:
                 pygame.draw.rect(game.window, white, button_done)
-                over_d = False
 
             b_d = myfont.render("Done", 1, black)
             game.window.blit(b_d, (button_done[0] + button_done[2] / 4, button_done[1] + button_done[3] / 4))
@@ -348,7 +341,7 @@ def get_file_name(card):
 
 def bet_call(game, player, bot, table):
     """
-    This function handels the case where either the player or bot folds or
+    This function handles the case where either the player or bot folds or
     goes all in.
 
     Inputs:
@@ -384,7 +377,7 @@ def bet_call(game, player, bot, table):
 
 def bet(game, player, bot, table):
     """
-    For each round this function handells all the betting by letting the player
+    For each round this function handles all the betting by letting the player
     bet and then the bot bet, the player and bot can keep betting and Raising and
     this loop ends if a player goes all in, folds, calls, or if both the bot and
     player check
@@ -408,6 +401,8 @@ def bet(game, player, bot, table):
     current_call = 0
     while True:
         print('Player turn')
+        game.infer_state(True, table, current_call, bot.get_chips() > 0, False)
+
         if bot.get_chips() == 0:
             current_call = player_bet(game, current_call, player, bot, table, can_raise=False)
             if game.is_over():
