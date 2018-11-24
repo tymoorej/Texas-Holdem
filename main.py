@@ -11,7 +11,7 @@ from bot import *
 import cProfile
 import argparse
 import pygame
-from game import Game
+from game import Game, GameState
 
 # Setting up the parser
 parser = argparse.ArgumentParser(
@@ -56,6 +56,7 @@ def start_screen(game):
 
     Runtime: N/A since it runs until the user clicks "Start game"
     """
+    game.set_game_state(GameState.START)
 
     game.window.blit(game.title_image, (0, 0))
     pygame.display.update()
@@ -85,8 +86,8 @@ def start_screen(game):
 
 def player_bet(game, current_call, player, bot, table, can_raise=True, done=False):
     """
-    This function handels both the player's decision(whether to bet, fold, etc...)
-    also while handelling all printing to the screen, it will run until the user
+    This function handles both the player's decision(whether to bet, fold, etc...)
+    also while handling all printing to the screen, it will run until the user
     makes a decision.
 
     Input:
@@ -101,6 +102,7 @@ def player_bet(game, current_call, player, bot, table, can_raise=True, done=Fals
 
     Runtime: N/A since it runs until the user makes a selection
     """
+    game.infer_state(True, table, current_call, can_raise, done)
 
     game.window.blit(game.empty_table, (0, 0))
     pygame.display.update()

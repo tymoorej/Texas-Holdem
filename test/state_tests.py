@@ -4,7 +4,7 @@ import time
 import sys, os
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-from game import Game
+from game import Game, GameState
 from main import main
 
 
@@ -42,23 +42,18 @@ class StateTestCase(unittest.TestCase):
         self.right_click = (345, 520)
         self.done_click = (204, 630)
 
-    def click_hook(self, game):
-        pass
-
-    def test_click(self):
+    def test_start(self):
         game = PreClickedGame([
             self.start_click,
-            self.middle_click,
-            self.middle_click,
-            self.right_click,
         ])
 
         try:
             main(game)
         except ExitTestException:
+            self.assertEqual(game.state, GameState.PLAYER_PREFLOP_OPEN)
             return
 
-        self.fail("Should have exited")
+        self.fail("Game should not have ended")
 
 
 if __name__ == "__main__":
