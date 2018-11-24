@@ -139,6 +139,10 @@ def if_straight_is_flush(l, table, player):
     Diamonds = 0
     Spades = 0
     Clubs = 0
+
+    if 1 in l: # ace low flush
+        l.append(14) 
+
     for c in table.get_cards():  # O(m)
         if c[0] in l:
             if c[1] == 'Hearts':
@@ -159,7 +163,6 @@ def if_straight_is_flush(l, table, player):
                 Spades += 1
             elif c[1] == 'Clubs':
                 Clubs += 1
-
     return Hearts >= 5 or Diamonds >= 5 or Spades >= 5 or Clubs >= 5
 
 
@@ -181,6 +184,9 @@ def has_straight_flush(table, player):
         total_cards_seen.add(c[0])
     for c in player.get_cards():  # O(n)
         total_cards_seen.add(c[0])
+
+    if 14 in total_cards_seen:
+        total_cards_seen.add(1) # adds a 1 if an ace is present, use to detect A,2,3,4,5 straights
 
     # For runtime purposes denote x=n+m
     sorted_cards_seen = list(sorted(total_cards_seen))  # O(xlog(x))
@@ -315,14 +321,8 @@ def has_straight(table, player):
     for c in player.get_cards():  # O(n)
         total_cards_seen.add(c[0])
 
-    add1 = False
-    for c in total_cards_seen:
-        if c == 14:
-            add1 = True # adds a 1 if an ace is present, use to detect A,2,3,4,5 straights
-            break
-    if add1:
-        total_cards_seen.add(1) # adds a 1 if an ace is present, use to detect A,2,3,4,5 straights
-        
+    if 14 in total_cards_seen:
+            total_cards_seen.add(1) # adds a 1 if an ace is present, use to detect A,2,3,4,5 straights 
 
     # For runtime purposes denote x=n+m
     sorted_cards_seen = list(sorted(total_cards_seen))  # O(xlog(x))

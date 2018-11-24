@@ -19,6 +19,44 @@ class TestHandMethods(unittest.TestCase):
         self.assertEqual(1, 1)
 
     def test_straight_flush(self):
+        for i in range(self._number_of_tests):
+            player = Player('p')
+            table = Table()
+
+            cards_on_table = randint(3,5)
+            cards = []
+            start = randint(5,10)
+
+            card_suit = self._suits[randint(0,len(self._suits)-1)]
+            cards.append((start,card_suit))
+            
+            if randint(0,1) == 1:
+                modifier = 1
+            else:
+                modifier = -1
+            for i in range(1,5):
+                    value = start + (i * modifier)
+                    if value == 1:
+                        value = 14
+                    cards.append((value,card_suit))
+
+            while len(cards) < cards_on_table + 2:
+                card_value = randint(2,14)
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
+                while ((card_value, card_suit) in cards):
+                    card_value = randint(2,14)
+                cards.append((card_value,card_suit))
+            shuffle(cards)
+
+            for i,s in enumerate(cards):
+                if i <= 1:
+                    player.add_card(s)
+                else:
+                    table.add_card(s)
+            result = has_straight_flush(table, player)
+            self.assertTrue(result)
+
+    def test_not_straight_flush(self):
         self.assertEqual(1, 1)
 
     def test_four_of_a_kind(self):
@@ -42,6 +80,7 @@ class TestHandMethods(unittest.TestCase):
                     card_suit = self._suits[randint(0,len(self._suits)-1)]
                     card_value = randint(2,14)
 
+            shuffle(cards)
             for i,c in enumerate(cards):
                 if i <= 1:
                     player.add_card(c)
@@ -65,6 +104,7 @@ class TestHandMethods(unittest.TestCase):
                     card_value = randint(2,14)
                 cards.append((card_value, card_suit))
 
+            shuffle(cards)
             for i,c in enumerate(cards):
                 if i <= 1:
                     player.add_card(c)
@@ -107,6 +147,7 @@ class TestHandMethods(unittest.TestCase):
                     card_value = randint(2,14)
                 cards.append((card_value, card_suit))
 
+            shuffle(cards)
             for i,c in enumerate(cards):
                 if i <= 1:
                     player.add_card(c)
@@ -139,6 +180,7 @@ class TestHandMethods(unittest.TestCase):
                 elif len([card[0] for card in cards if card[0] == card_value]) == 3:
                     triplits.add(card_value)
 
+            shuffle(cards)
             for i,c in enumerate(cards):
                 if i <= 1:
                     player.add_card(c)
@@ -171,6 +213,7 @@ class TestHandMethods(unittest.TestCase):
                     card_value = randint(2,14)
                 cards.append((card_value, card_suit))
             
+            shuffle(cards)
             for i,c in enumerate(cards):
                 if i <= 1:
                     player.add_card(c)
@@ -198,6 +241,7 @@ class TestHandMethods(unittest.TestCase):
                 suits_seen.append(card_suit)
                 cards.append((card_value,card_suit))
 
+            shuffle(cards)
             for i,c in enumerate(cards):
                 if i <= 1:
                     player.add_card(c)
@@ -270,6 +314,7 @@ class TestHandMethods(unittest.TestCase):
             if skip_to_next:
                 continue
 
+            shuffle(cards)
             for i,c in enumerate(cards):
                 if i <= 1:
                     player.add_card(c)
