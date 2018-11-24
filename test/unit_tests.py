@@ -16,7 +16,32 @@ class TestHandMethods(unittest.TestCase):
         self._suits = ['Hearts', 'Diamonds', 'Spades', 'Clubs']
 
     def test_royal_flush(self):
-        self.assertEqual(1, 1)
+        for i in range(0,4):
+            player = Player('p')
+            table = Table()
+            card_suit = self._suits[i]
+            cards = []
+            cards_on_table = randint(3,5)
+
+            for j in range(10,15):
+                cards.append((j,card_suit))
+
+            while len(cards) < cards_on_table + 2:
+                card_value = randint(2,14)
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
+                while ((card_value, card_suit) in cards):
+                    card_value = randint(2,14)
+                cards.append((card_value,card_suit))
+            shuffle(cards)
+
+            for i,s in enumerate(cards):
+                if i <= 1:
+                    player.add_card(s)
+                else:
+                    table.add_card(s)
+
+            result = has_royal_flush(table, player)
+            self.assertTrue(result)
 
     def test_straight_flush(self):
         for i in range(self._number_of_tests):
