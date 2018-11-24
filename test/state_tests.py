@@ -16,6 +16,7 @@ class DoneFlag:
 
 
 def mainloop(hook):
+
     done_flag = DoneFlag()
     cards, table, player, bot = setup()
     while not done_flag.done():
@@ -23,7 +24,7 @@ def mainloop(hook):
         end_of_round(cards, table, player, bot, skip)
         player_bet(0, player, bot, table, done=True)
         hook(done_flag)
-        if game_over or player.get_chips() <= 0 or bot.get_chips() <= 0:
+        if game.is_over() or player.get_chips() <= 0 or bot.get_chips() <= 0:
             pygame.quit()
             quit()
         cards.collect([player, bot, table])
