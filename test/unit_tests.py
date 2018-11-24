@@ -16,10 +16,165 @@ class TestHandMethods(unittest.TestCase):
         self._suits = ['Hearts', 'Diamonds', 'Spades', 'Clubs']
 
     def test_royal_flush(self):
-        self.assertEqual(1, 1)
+        for i in range(0,4):
+            player = Player('p')
+            table = Table()
+            card_suit = self._suits[i]
+            cards = []
+            cards_on_table = randint(3,5)
+
+            for j in range(10,15):
+                cards.append((j,card_suit))
+
+            while len(cards) < cards_on_table + 2:
+                card_value = randint(2,14)
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
+                while ((card_value, card_suit) in cards):
+                    card_value = randint(2,14)
+                cards.append((card_value,card_suit))
+            shuffle(cards)
+
+            for i,s in enumerate(cards):
+                if i <= 1:
+                    player.add_card(s)
+                else:
+                    table.add_card(s)
+
+            result = has_royal_flush(table, player)
+            self.assertTrue(result)
+
+    def test_not_royal_flush(self):
+        for i in range(self._number_of_tests):
+            player = Player('p')
+            table = Table()
+            cards_on_table = randint(0,5)
+            cards = []
+
+            for i in range(cards_on_table + 2):
+                card_value = randint(2,14)
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
+                while (card_value, card_suit) in cards:
+                    card_suit = self._suits[randint(0,len(self._suits)-1)]
+                    card_value = randint(2,14)
+                cards.append((card_value, card_suit))
+
+            def get_card(number, cards):
+                for c in cards:
+                    if c[0] == number:
+                        return c
+            
+            def is_straight_also_flush(start, end, cards):
+                suits_seen = set()
+                for i in range(start, end+1):
+                    suits_seen.add(get_card(i, cards)[1])
+                return len(suits_seen) == 1
+
+            skip_to_next = False
+            if set(range(10,15)).issubset(set( [c[0] for c in cards ] )):
+                if is_straight_also_flush(10, 14, cards):
+                    skip_to_next = True
+                    break
+            
+            if skip_to_next:
+                continue
+
+            shuffle(cards)
+            for i,c in enumerate(cards):
+                if i <= 1:
+                    player.add_card(c)
+                else:
+                    table.add_card(c)            
+            result = has_royal_flush(table, player)
+            self.assertFalse(result) 
 
     def test_straight_flush(self):
-        self.assertEqual(1, 1)
+        for i in range(self._number_of_tests):
+            player = Player('p')
+            table = Table()
+
+            cards_on_table = randint(3,5)
+            cards = []
+            start = randint(5,10)
+
+            card_suit = self._suits[randint(0,len(self._suits)-1)]
+            cards.append((start,card_suit))
+            
+            if randint(0,1) == 1:
+                modifier = 1
+            else:
+                modifier = -1
+            for i in range(1,5):
+                    value = start + (i * modifier)
+                    if value == 1:
+                        value = 14
+                    cards.append((value,card_suit))
+
+            while len(cards) < cards_on_table + 2:
+                card_value = randint(2,14)
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
+                while ((card_value, card_suit) in cards):
+                    card_value = randint(2,14)
+                cards.append((card_value,card_suit))
+            shuffle(cards)
+
+            for i,s in enumerate(cards):
+                if i <= 1:
+                    player.add_card(s)
+                else:
+                    table.add_card(s)
+            result = has_straight_flush(table, player)
+            self.assertTrue(result)
+
+    def test_not_straight_flush(self):
+        for i in range(self._number_of_tests):
+            player = Player('p')
+            table = Table()
+            cards_on_table = randint(0,5)
+            cards = []
+
+            for i in range(cards_on_table + 2):
+                card_value = randint(2,14)
+                card_suit = self._suits[randint(0,len(self._suits)-1)]
+                while (card_value, card_suit) in cards:
+                    card_suit = self._suits[randint(0,len(self._suits)-1)]
+                    card_value = randint(2,14)
+                cards.append((card_value, card_suit))
+
+            cards_adjusted = cards.copy()
+            
+            for c in cards:
+                if c[0] == 14:
+                    cards_adjusted.append((1,c[1]))
+
+            def get_card(number, cards):
+                for c in cards:
+                    if c[0] == number:
+                        return c
+            
+            def is_straight_also_flush(start, end, cards):
+                suits_seen = set()
+                for i in range(start, end+1):
+                    suits_seen.add(get_card(i, cards)[1])
+                return len(suits_seen) == 1
+
+            skip_to_next = False
+            for i in range(1,11):
+                if set(range(i,i+5)).issubset(set( [c[0] for c in cards_adjusted ] )):
+                    if is_straight_also_flush(i, i+4, cards_adjusted):
+                        skip_to_next = True
+                        break
+            
+            if skip_to_next:
+                continue
+
+            shuffle(cards)
+            for i,c in enumerate(cards):
+                if i <= 1:
+                    player.add_card(c)
+                else:
+                    table.add_card(c)            
+            result = has_straight_flush(table, player)
+            self.assertFalse(result)   
 
     def test_four_of_a_kind(self):
 
@@ -42,6 +197,7 @@ class TestHandMethods(unittest.TestCase):
                     card_suit = self._suits[randint(0,len(self._suits)-1)]
                     card_value = randint(2,14)
 
+            shuffle(cards)
             for i,c in enumerate(cards):
                 if i <= 1:
                     player.add_card(c)
@@ -65,6 +221,7 @@ class TestHandMethods(unittest.TestCase):
                     card_value = randint(2,14)
                 cards.append((card_value, card_suit))
 
+            shuffle(cards)
             for i,c in enumerate(cards):
                 if i <= 1:
                     player.add_card(c)
@@ -107,6 +264,7 @@ class TestHandMethods(unittest.TestCase):
                     card_value = randint(2,14)
                 cards.append((card_value, card_suit))
 
+            shuffle(cards)
             for i,c in enumerate(cards):
                 if i <= 1:
                     player.add_card(c)
@@ -139,6 +297,7 @@ class TestHandMethods(unittest.TestCase):
                 elif len([card[0] for card in cards if card[0] == card_value]) == 3:
                     triplits.add(card_value)
 
+            shuffle(cards)
             for i,c in enumerate(cards):
                 if i <= 1:
                     player.add_card(c)
@@ -171,6 +330,7 @@ class TestHandMethods(unittest.TestCase):
                     card_value = randint(2,14)
                 cards.append((card_value, card_suit))
             
+            shuffle(cards)
             for i,c in enumerate(cards):
                 if i <= 1:
                     player.add_card(c)
@@ -198,6 +358,7 @@ class TestHandMethods(unittest.TestCase):
                 suits_seen.append(card_suit)
                 cards.append((card_value,card_suit))
 
+            shuffle(cards)
             for i,c in enumerate(cards):
                 if i <= 1:
                     player.add_card(c)
@@ -270,6 +431,7 @@ class TestHandMethods(unittest.TestCase):
             if skip_to_next:
                 continue
 
+            shuffle(cards)
             for i,c in enumerate(cards):
                 if i <= 1:
                     player.add_card(c)
