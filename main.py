@@ -60,9 +60,23 @@ def start_screen(game):
 
     game.window.blit(game.title_image, (0, 0))
     pygame.display.update()
+
+    myfont = pygame.font.SysFont("monospace", 25)
     start_button_rect = (game.width / 2, game.height / 2 - 200, 170, 35)
+
     end = False
     while end is False:
+        position = pygame.mouse.get_pos()
+        if point_in_rect(position, start_button_rect):
+            pygame.draw.rect(game.window, grey, start_button_rect)
+        else:
+            pygame.draw.rect(game.window, white, start_button_rect)
+
+        start_label = myfont.render("Start Game", 1, black)
+        game.window.blit(start_label, tuple(start_button_rect[:2]))
+        pygame.display.update()
+
+        # Event handling loop
         for event in game.get_events():
             if event.type == pygame.QUIT:
                 end = True
@@ -71,16 +85,7 @@ def start_screen(game):
                 if point_in_rect(event.dict['pos'], start_button_rect):
                     print(event.dict['pos'])
                     end = True
-        game.window.blit(game.title_image, (0, 0))
-        position = pygame.mouse.get_pos()
-        if point_in_rect(position, start_button_rect):
-            pygame.draw.rect(game.window, grey, start_button_rect)
-        else:
-            pygame.draw.rect(game.window, white, start_button_rect)
-        myfont = pygame.font.SysFont("monospace", 25)
-        start_label = myfont.render("Start Game", 1, black)
-        game.window.blit(start_label, tuple(start_button_rect[:2]))
-        pygame.display.update()
+
         game.clock.tick(60)  # fps
 
 
@@ -149,10 +154,107 @@ def player_bet(game, current_call, player, bot, table, can_raise=True, done=Fals
     chips = pygame.image.load("PNG-cards-1.3/chips.png")
     chips = pygame.transform.scale(chips, (100, 145))
 
+    game.window.blit(game.empty_table, (0, 0))
+    game.window.blit(first_card, (650, 500))
+    game.window.blit(second_card, (500, 500))
+    if not done:
+        game.window.blit(facedown, (650, 100))
+        game.window.blit(facedown, (500, 100))
+    if done:
+        game.window.blit(bot_first_card, (650, 100))
+        game.window.blit(bot_second_card, (500, 100))
+    dx = 0
+    for c in table_disp:
+        game.window.blit(c, (300 + dx, 300))
+        dx += 150
+    game.window.blit(chips, (800, 450))
+    game.window.blit(chips, (800, 100))
+    game.window.blit(chips, (150, 250))
+
+    myfont = pygame.font.SysFont("monospace", 25, bold=True)
+
     Raise = False
     Bet = False
     userinput = ''
     while end is False:
+        player_chips = myfont.render(
+            "Player chips: " + str(player.get_chips()), 1, white)
+        game.window.blit(player_chips, (800, 460))
+
+        bot_chips = myfont.render("Bot chips: " + str(bot.get_chips()), 1,
+                                  white)
+        game.window.blit(bot_chips, (800, 200))
+
+        table_chips = myfont.render("Table chips: " + str(table.get_chips()),
+                                    1, white)
+        game.window.blit(table_chips, (200, 250))
+
+        disp_cc = myfont.render("Current call: " + str(current_call), 1, white)
+        game.window.blit(disp_cc, (10, 10))
+
+        position = pygame.mouse.get_pos()
+        if not done:
+
+            # Button 1
+            if point_in_rect(position, button1):
+                pygame.draw.rect(game.window, grey, button1)
+            else:
+                pygame.draw.rect(game.window, white, button1)
+
+            if current_call > 0:
+                b1 = myfont.render("Raise", 1, black)
+            else:
+                b1 = myfont.render("Bet", 1, black)
+
+            game.window.blit(b1, (button1[0] + button1[2] / 6, button1[1] + button1[3] / 6))
+
+            # Button 2
+            if point_in_rect(position, button2):
+                pygame.draw.rect(game.window, grey, button2)
+            else:
+                pygame.draw.rect(game.window, white, button2)
+
+            if current_call > 0:
+                b2 = myfont.render("Call", 1, black)
+            else:
+                b2 = myfont.render("Check", 1, black)
+            game.window.blit(b2, (button2[0] + button2[2] / 6, button2[1] + button2[3] / 6))
+
+            # Button 3
+            if point_in_rect(position, button3):
+                pygame.draw.rect(game.window, grey, button3)
+            else:
+                pygame.draw.rect(game.window, white, button3)
+
+            b3 = myfont.render("Fold", 1, black)
+            game.window.blit(b3, (button3[0] + button3[2] / 6, button3[1] + button3[3] / 6))
+
+            if Raise or Bet:
+                quest = myfont.render("By how much?", 1, white)
+                game.window.blit(quest, (20, 600))
+                ans = myfont.render(userinput, 1, white)
+                game.window.blit(ans, (220, 600))
+
+        else:
+            if player.get_chips() == 0:
+                win = myfont.render("Bot is the winner!", 1, white)
+                game.window.blit(win, (10, 500))
+
+            if bot.get_chips() == 0:
+                win = myfont.render("Player is the winner!", 1, white)
+                game.window.blit(win, (10, 500))
+
+            if point_in_rect(position, button_done):
+                pygame.draw.rect(game.window, grey, button_done)
+            else:
+                pygame.draw.rect(game.window, white, button_done)
+
+            b_d = myfont.render("Done", 1, black)
+            game.window.blit(b_d, (button_done[0] + button_done[2] / 4, button_done[1] + button_done[3] / 4))
+
+        pygame.display.update()
+
+        # Event handling loop
         for event in game.get_events():
             if event.type == pygame.QUIT:
                 end = True
@@ -218,101 +320,7 @@ def player_bet(game, current_call, player, bot, table, can_raise=True, done=Fals
                             table.add_chips(converted_input)
                             return converted_input
 
-        game.window.blit(game.empty_table, (0, 0))
-        game.window.blit(first_card, (650, 500))
-        game.window.blit(second_card, (500, 500))
-        if not done:
-            game.window.blit(facedown, (650, 100))
-            game.window.blit(facedown, (500, 100))
-        if done:
-            game.window.blit(bot_first_card, (650, 100))
-            game.window.blit(bot_second_card, (500, 100))
-        dx = 0
-        for c in table_disp:
-            game.window.blit(c, (300 + dx, 300))
-            dx += 150
-        game.window.blit(chips, (800, 450))
-        game.window.blit(chips, (800, 100))
-        game.window.blit(chips, (150, 250))
-        myfont = pygame.font.SysFont("monospace", 25, bold=True)
 
-        player_chips = myfont.render(
-            "Player chips: " + str(player.get_chips()), 1, white)
-        game.window.blit(player_chips, (800, 460))
-
-        bot_chips = myfont.render("Bot chips: " + str(bot.get_chips()), 1,
-                                  white)
-        game.window.blit(bot_chips, (800, 200))
-
-        table_chips = myfont.render("Table chips: " + str(table.get_chips()),
-                                    1, white)
-        game.window.blit(table_chips, (200, 250))
-
-        disp_cc = myfont.render("Current call: " + str(current_call), 1, white)
-        game.window.blit(disp_cc, (10, 10))
-
-        position = pygame.mouse.get_pos()
-        if not done:
-
-            # Button 1
-            if point_in_rect(position, button1):
-                pygame.draw.rect(game.window, grey, button1)
-            else:
-                pygame.draw.rect(game.window, white, button1)
-
-            if current_call > 0:
-                b1 = myfont.render("Raise", 1, black)
-
-            else:
-                b1 = myfont.render("Bet", 1, black)
-
-            game.window.blit(b1, (button1[0] + button1[2] / 6, button1[1] + button1[3] / 6))
-
-            # Button 2
-            if point_in_rect(position, button2):
-                pygame.draw.rect(game.window, grey, button2)
-            else:
-                pygame.draw.rect(game.window, white, button2)
-
-            if current_call > 0:
-                b2 = myfont.render("Call", 1, black)
-            else:
-                b2 = myfont.render("Check", 1, black)
-            game.window.blit(b2, (button2[0] + button2[2] / 6, button2[1] + button2[3] / 6))
-
-            # Button 3
-            if point_in_rect(position, button3):
-                pygame.draw.rect(game.window, grey, button3)
-            else:
-                pygame.draw.rect(game.window, white, button3)
-
-            b3 = myfont.render("Fold", 1, black)
-            game.window.blit(b3, (button3[0] + button3[2] / 6, button3[1] + button3[3] / 6))
-
-            if Raise or Bet:
-                quest = myfont.render("By how much?", 1, white)
-                game.window.blit(quest, (20, 600))
-                ans = myfont.render(userinput, 1, white)
-                game.window.blit(ans, (220, 600))
-
-        else:
-            if player.get_chips() == 0:
-                win = myfont.render("Bot is the winner!", 1, white)
-                game.window.blit(win, (10, 500))
-
-            if bot.get_chips() == 0:
-                win = myfont.render("Player is the winner!", 1, white)
-                game.window.blit(win, (10, 500))
-
-            if point_in_rect(position, button_done):
-                pygame.draw.rect(game.window, grey, button_done)
-            else:
-                pygame.draw.rect(game.window, white, button_done)
-
-            b_d = myfont.render("Done", 1, black)
-            game.window.blit(b_d, (button_done[0] + button_done[2] / 4, button_done[1] + button_done[3] / 4))
-
-        pygame.display.update()
         game.clock.tick(60)  # fps
 
 

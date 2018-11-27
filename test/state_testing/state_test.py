@@ -20,7 +20,7 @@ class PreClickedGame(Game):
     @staticmethod
     def make_click_gen(click_list):
         for c in click_list:
-            # time.sleep(0.5)
+            time.sleep(1)
             yield c
         raise ExitTestException()
 
