@@ -309,7 +309,7 @@ def player_bet(game, current_call, player, bot, table, can_raise=True, done=Fals
                         else:
                             player.remove_chips(converted_input + current_call)
                             table.add_chips(converted_input + current_call)
-                            game.set_game_state()
+                            # game.set_game_state()
                             return converted_input
                     if Bet:
                         if converted_input > player.get_chips():
