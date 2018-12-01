@@ -463,7 +463,7 @@ class Bot(Player):
         of the Player class.
 
         Input:
-        self - the object on which this meathod is done on
+        self - the object on which this method is done on
         cards=None - The cards that the table starts out with, initialized to
         the empty list.
 
