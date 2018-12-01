@@ -59,6 +59,9 @@ class StateTestCase(unittest.TestCase):
         game = PreClickedGame([
             self.start_click,
             self.middle_click,
+            self.left_click,
+            self.left_click,
+            self.middle_click
         ])
 
         try:

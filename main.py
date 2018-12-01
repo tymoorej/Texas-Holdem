@@ -75,7 +75,6 @@ def start_screen(game):
         start_label = myfont.render("Start Game", 1, black)
         game.window.blit(start_label, tuple(start_button_rect[:2]))
         pygame.display.update()
-
         # Event handling loop
         for event in game.get_events():
             if event.type == pygame.QUIT:
@@ -472,12 +471,6 @@ def setup(game):
     if game.is_over():
         pygame.quit()
         quit()
-    cards = Deck()
-    cards.shuffle()  # O(n)
-    table = Table()
-    player = Player('p')
-    bot = Bot()
-    return cards, table, player, bot
 
 
 def end_of_round(cards, table, player, bot, skip):
@@ -530,16 +523,16 @@ def main(game):
     and bot (if they bet or fold or etc..)
     """
     game.init()
+    setup(game)
 
-    cards, table, player, bot = setup(game)
     while True:
-        skip = rounds(game, cards, table, player, bot)
-        end_of_round(cards, table, player, bot, skip)
-        player_bet(game, 0, player, bot, table, done=True)
-        if game.is_over() or player.get_chips() <= 0 or bot.get_chips() <= 0:
+        skip = rounds(game, game.cards, game.table, game.player, game.bot)
+        end_of_round(game.cards, game.table, game.player, game.bot, skip)
+        player_bet(game, 0, game.player, game.bot, game.table, done=True)
+        if game.is_over() or game.player.get_chips() <= 0 or game.bot.get_chips() <= 0:
             pygame.quit()
             quit()
-        cards.collect([player, bot, table])
+        game.cards.collect([game.player, game.bot, game.table])
 
 
 def rounds(game, cards, table, player, bot):
