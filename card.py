@@ -487,3 +487,6 @@ class Bot(Player):
 
     def bet(self, current_call, table, can_raise=True):
         return bot.bot_bet(current_call, self, table, can_raise)
+
+    def rand_number_in_range(self, a, b):
+        return randint(a,b)

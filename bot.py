@@ -3,7 +3,7 @@ This file handels all of the betting that the bot does.
 """
 import card as cardsets
 from winning_hand import winner
-from random import *
+from random import sample
 
 MONTE_CARLO_ITERATIONS = 10000
 
@@ -32,7 +32,7 @@ def bot_bet(current_call, bot, table, can_raise=True):
     chance = Monte_Carlo(bot, table)  # O(p*xlog(x) + plog(p))
     chance = chance // 100  # chance=(chance/10,000)*100%
     print("Chance BEFORE: ", chance)
-    chance = chance + randint(-15, 15)  # gives the bot a bit of randomness
+    chance = chance + bot.rand_number_in_range(-15, 15)  # gives the bot a bit of randomness
     if chance <= 0:
         chance = 0
     if chance >= 100:
@@ -40,8 +40,7 @@ def bot_bet(current_call, bot, table, can_raise=True):
     print("Chance AFTER:   ", chance)
 
     if type(current_call) is int and current_call > 0:
-        if chance >= 50 and bot.get_chips(
-        ) - current_call > 0 and can_raise is True:
+        if chance >= 50 and bot.get_chips() - current_call > 0 and can_raise is True:
             base = (chance - 50) / 50
             value = int(base * (bot.get_chips() - current_call))
             print('Raising by: ', value)
