@@ -52,6 +52,15 @@ class WinningHandTestCase(unittest.TestCase):
             lambda: winning_hand.winner(self.table, [self.player1, self.player2], printing=True)).capture()
         self.assertEqual(self.player2, winner)
 
+    '''FAIL - Breaks ties by highest card in a player's hand.'''
+    # def test_winner_player_high_card_tie(self):
+    #     WinningHandTestCase.issue_cards(self.player1, [(2, 'Clubs'), (12, 'Hearts')])
+    #     WinningHandTestCase.issue_cards(self.player2, [(2, 'Spades'), (9, 'Clubs')])
+    #     WinningHandTestCase.issue_cards(
+    #         self.table, [(2, 'Hearts'), (5, 'Diamonds'), (13, 'Spades'), (9, 'Diamonds'), (5, 'Clubs')])
+    #
+    #     self.assertEqual(self.player2, winning_hand.winner(self.table, [self.player1, self.player2], printing=False))
+
     def test_get_value_royal_flush(self):
         WinningHandTestCase.issue_cards(self.player1, [(14, 'Spades'), (2, 'Clubs')])
         WinningHandTestCase.issue_cards(
