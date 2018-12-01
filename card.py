@@ -44,7 +44,7 @@ class Deck:
 
     def get_cards(self):
         """
-        Recieves all the cards in a deck.
+        Receives all the cards in a deck.
 
         Input: self - the object on which this method is done on
 
@@ -124,7 +124,7 @@ class Deck:
         of cards to each player
 
         Inputs:
-        self - the object on which this meathod is done on
+        self - the object on which this method is done on
         players - a list of all the player objects that we will deal cards to
         cards_per_player - the number of cards to be dealt to each player
 
@@ -144,7 +144,7 @@ class Deck:
         Collects all the cards from the players and puts them back in the deck
 
         Input:
-        self - the object on which this meathod is done on
+        self - the object on which this method is done on
         players - a list of all the player objects that we will collect the cards
         from
 
@@ -163,7 +163,7 @@ class Deck:
 
         Input: self - the object on which this method is done on
 
-        Output: whether or not the deck of cards contains evrey card.
+        Output: whether or not the deck of cards contains every card.
 
         Runtime: O(n) where n is the number of cards in the deck
         """
@@ -242,7 +242,7 @@ class Player:
 
     def get_hand(self):
         """
-        Recieves the hand (Royal Flush(10),...,Two Pair(2), One Pair(1)) the player has.
+        Receives the hand (Royal Flush(10),...,Two Pair(2), One Pair(1)) the player has.
 
         Input: self - the object on which this method is done on
 
@@ -268,7 +268,7 @@ class Player:
 
     def get_ID(self):
         """
-        Recieves the ID the player has.
+        Receives the ID the player has.
 
         Input: self - the object on which this method is done on
 
@@ -280,7 +280,7 @@ class Player:
 
     def get_cards(self):
         """
-        Recieves all the cards the player has.
+        Receives all the cards the player has.
 
         Input: self - the object on which this method is done on
 
