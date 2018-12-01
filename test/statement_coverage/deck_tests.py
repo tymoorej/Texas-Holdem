@@ -20,7 +20,7 @@ class DeckTestCase(unittest.TestCase):
             self.empty_deck.remove_random_card()
 
     @staticmethod
-    def generateFullDeck():
+    def generate_full_deck():
         cards = []
         for val in range(2, 15):
             for suit in ["Hearts", "Diamonds", "Spades", "Clubs"]:
@@ -29,17 +29,17 @@ class DeckTestCase(unittest.TestCase):
         return cards
 
     @staticmethod
-    def sortBySuit(cards):
+    def sort_by_suit(cards):
         cards.sort(key=lambda card: (card[1], card[0]))
 
     @staticmethod
-    def equalCards(cards1, cards2, after_sort=True):
+    def equal_cards(cards1, cards2, after_sort=True):
         if len(cards1) != len(cards2):
             return False
 
         if after_sort:
-            DeckTestCase.sortBySuit(cards1)
-            DeckTestCase.sortBySuit(cards2)
+            DeckTestCase.sort_by_suit(cards1)
+            DeckTestCase.sort_by_suit(cards2)
 
         for i, card in enumerate(cards1):
             if card[0] != cards2[i][0] or card[1] != cards2[i][1]:
@@ -52,7 +52,7 @@ class DeckTestCase(unittest.TestCase):
         self.assertEqual(52, len(deck.get_cards()))
 
     def test_print_cards(self):
-        cards = DeckTestCase.generateFullDeck()
+        cards = DeckTestCase.generate_full_deck()
 
         _, output = StdoutCapture(lambda : self.full_deck.print_cards()).capture()
 
@@ -60,17 +60,17 @@ class DeckTestCase(unittest.TestCase):
         self.assertTrue(str(cards) in output)
 
     def test_get_cards(self):
-        all_cards = DeckTestCase.generateFullDeck()
+        all_cards = DeckTestCase.generate_full_deck()
         cards = self.full_deck.get_cards()
 
-        self.assertTrue(DeckTestCase.equalCards(all_cards, cards))
+        self.assertTrue(DeckTestCase.equal_cards(all_cards, cards))
 
     def test_shuffle(self):
         old_cards = self.full_deck.get_cards().copy()
         self.full_deck.shuffle()
 
         new_cards = self.full_deck.get_cards()
-        self.assertFalse(DeckTestCase.equalCards(old_cards, new_cards, after_sort=False))
+        self.assertFalse(DeckTestCase.equal_cards(old_cards, new_cards, after_sort=False))
 
     def test_remove_random_card_exists(self):
         cards = self.full_deck.get_cards().copy()
