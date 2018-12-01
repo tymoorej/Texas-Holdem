@@ -237,7 +237,7 @@ def has_full_house(table, player):
     table - an object of the Table class
     player - an object of the Player class
 
-    Output: True if there is atleast a 3 pair and a 2 pair, False otherwise
+    Output: True if there is at least a 3 pair and a 2 pair, False otherwise
 
     Runtime: O(n+m) where n is the the number of cards that the player
     has and m is the number of cards on the table

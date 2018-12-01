@@ -4,6 +4,8 @@ This file sets up all the global variables needed for the pygame visualization
 import pygame
 import enum
 
+from card import Deck, Table, Player, Bot
+
 
 class GameException(Exception):
     pass
@@ -79,6 +81,12 @@ class Game:
         self.game_over = False  # true when game is over
         self.title_image = None  # title image
         self.empty_table = None  # empty table image
+
+        self.cards = Deck()
+        self.cards.shuffle()  # O(n)
+        self.table = Table()
+        self.player = Player('p')
+        self.bot = Bot()
 
     def init(self):
         pygame.init()  # setup pygame
