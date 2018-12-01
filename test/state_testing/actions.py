@@ -1,4 +1,9 @@
 import pygame
+import enum
+
+
+class BotAction(enum.Enum):
+    CALL = 4
 
 
 def click(click_pos):
@@ -35,3 +40,18 @@ def fold():
 def done():
     return click((204, 630))
 
+
+def bot_bet(amt):
+    return amt
+
+
+def bot_check():
+    return 0
+
+
+def bot_call():
+    return BotAction.CALL
+
+
+def bot_fold():
+    return 'Fold'

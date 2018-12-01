@@ -1,5 +1,5 @@
 """
-This file handels the Classes Deck, Player, Table, and Bot.
+This file handles the Classes Deck, Player, Table, and Bot.
 """
 
 from random import randint  # Used for shuffling and popping off random cards
@@ -9,7 +9,7 @@ import bot
 class Deck:
     """
     Deck Class:
-    This class handels a deck of cards and ensures it holds all of a deck's
+    This class handles a deck of cards and ensures it holds all of a deck's
     properties. The deck will resemble an actual deck of playing cards.
     """
 
@@ -17,7 +17,7 @@ class Deck:
         """
         Creates a deck of cards.
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
 
         Output: None
 
@@ -33,7 +33,7 @@ class Deck:
         """
         Prints out a deck of cards.
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
 
         Output: None
 
@@ -44,9 +44,9 @@ class Deck:
 
     def get_cards(self):
         """
-        Recieves all the cards in a deck.
+        Receives all the cards in a deck.
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
 
         Output: A list of all the cards the deck contains.
 
@@ -58,7 +58,7 @@ class Deck:
         """
         Shuffles all the cards in a deck.
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
 
         Output: None.
 
@@ -74,7 +74,7 @@ class Deck:
         """
         Pops off a random card in the deck.
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
 
         Output: the card that is removed.
 
@@ -92,7 +92,7 @@ class Deck:
         """
         Pops off the top card in the deck.
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
 
         Output: the card that is removed.
 
@@ -107,7 +107,7 @@ class Deck:
         """
         Pops off a specified card in the deck.
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
 
         Output: the card that is removed.
 
@@ -124,7 +124,7 @@ class Deck:
         of cards to each player
 
         Inputs:
-        self - the object on which this meathod is done on
+        self - the object on which this method is done on
         players - a list of all the player objects that we will deal cards to
         cards_per_player - the number of cards to be dealt to each player
 
@@ -144,7 +144,7 @@ class Deck:
         Collects all the cards from the players and puts them back in the deck
 
         Input:
-        self - the object on which this meathod is done on
+        self - the object on which this method is done on
         players - a list of all the player objects that we will collect the cards
         from
 
@@ -161,9 +161,9 @@ class Deck:
         """
         Determines if all the cards are in the deck.
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
 
-        Output: whether or not the deck of cards contains evrey card.
+        Output: whether or not the deck of cards contains every card.
 
         Runtime: O(n) where n is the number of cards in the deck
         """
@@ -180,7 +180,7 @@ class Deck:
         Pushes a specified number of cards to the table
 
         Input:
-        self - the object on which this meathod is done on
+        self - the object on which this method is done on
         table - the table object which we will be pushing cards too
         number_of_cards - the number of cards to be pushed to the table
 
@@ -196,7 +196,7 @@ class Deck:
         """
         Used to print the Deck
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
 
         Output: A string of what to print
 
@@ -208,7 +208,7 @@ class Deck:
 class Player:
     """
     Player Class:
-    This class handels a Player object that has cards, chips,
+    This class handles a Player object that has cards, chips,
     and ID to identify it. The Player class acts as a base for both the Bot and
     Table classes
     """
@@ -220,7 +220,7 @@ class Player:
         2000 chips.
 
         Input:
-        self - the object on which this meathod is done on
+        self - the object on which this method is done on
         ID - The identification of the player
         cards=None - The cards that the player starts out with, initialized to
         the empty list.
@@ -242,9 +242,9 @@ class Player:
 
     def get_hand(self):
         """
-        Recieves the hand (Royal Flush(10),...,Two Pair(2), One Pair(1)) the player has.
+        Receives the hand (Royal Flush(10),...,Two Pair(2), One Pair(1)) the player has.
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
 
         Output: The hand the player has.
 
@@ -257,7 +257,7 @@ class Player:
         Sets the hand (Royal Flush(10),...,Two Pair(2), One Pair(1)) the player has.
 
         Input:
-        self - the object on which this meathod is done on.
+        self - the object on which this method is done on.
         hand - the hand we will set the players hand at.
 
         Output: None.
@@ -268,9 +268,9 @@ class Player:
 
     def get_ID(self):
         """
-        Recieves the ID the player has.
+        Receives the ID the player has.
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
 
         Output: The ID of the player.
 
@@ -280,9 +280,9 @@ class Player:
 
     def get_cards(self):
         """
-        Recieves all the cards the player has.
+        Receives all the cards the player has.
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
 
         Output: A list of all the cards the player has.
 
@@ -294,7 +294,7 @@ class Player:
         """
         Prints all the cards the player has.
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
 
         Output: None.
 
@@ -308,7 +308,7 @@ class Player:
         Gives a card to the player.
 
         Input:
-        self - the object on which this meathod is done on
+        self - the object on which this method is done on
         card - the card to be added
 
         Output: None
@@ -322,7 +322,7 @@ class Player:
         Removes a card from the player.
 
         Input:
-        self - the object on which this meathod is done on
+        self - the object on which this method is done on
         card - the card to be removed
 
         Output: None
@@ -338,7 +338,7 @@ class Player:
         Pops a card from the player.
 
         Input:
-        self - the object on which this meathod is done on
+        self - the object on which this method is done on
 
         Output: The card Popped off
 
@@ -353,7 +353,7 @@ class Player:
         """
         Used to print the Player
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
 
         Output: A string of what to print
 
@@ -365,7 +365,7 @@ class Player:
         """
         Get the number of chips the player has
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
 
         Output: The number of chips the player has
 
@@ -377,7 +377,7 @@ class Player:
         """
         Remove a certain number of chips from the player
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
         value - the number of chips to be removed
 
         Output: None
@@ -390,7 +390,7 @@ class Player:
         """
         Add a certain number of chips to the player
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
         value - the number of chips to be added
 
         Output: None
@@ -412,7 +412,7 @@ class Table(Player):
         of the Player class. Then we assign its chips to be 0
 
         Input:
-        self - the object on which this meathod is done on
+        self - the object on which this method is done on
         cards=None - The cards that the table starts out with, initialized to
         the empty list.
 
@@ -427,7 +427,7 @@ class Table(Player):
         """
         Used to print the Table
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
 
         Output: A string of what to print
 
@@ -440,7 +440,7 @@ class Table(Player):
         Gives a player all the Tables chips
 
         Input:
-        self - the object on which this meathod is done on
+        self - the object on which this method is done on
         player - a player to whom the chips will be given to
 
         Output: None
@@ -463,7 +463,7 @@ class Bot(Player):
         of the Player class.
 
         Input:
-        self - the object on which this meathod is done on
+        self - the object on which this method is done on
         cards=None - The cards that the table starts out with, initialized to
         the empty list.
 
@@ -477,7 +477,7 @@ class Bot(Player):
         """
         Used to print the Bot
 
-        Input: self - the object on which this meathod is done on
+        Input: self - the object on which this method is done on
 
         Output: A string of what to print
 

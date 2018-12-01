@@ -232,6 +232,7 @@ def player_bet(game, current_call, player, bot, table, can_raise=True, done=Fals
                 quest = myfont.render("By how much?", 1, white)
                 game.window.blit(quest, (20, 600))
                 ans = myfont.render(userinput, 1, white)
+                game.window.blit(game.empty_table, (220, 600), pygame.Rect(220, 600, 200, 120))
                 game.window.blit(ans, (220, 600))
 
         else:
