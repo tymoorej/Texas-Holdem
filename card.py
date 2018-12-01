@@ -3,6 +3,7 @@ This file handels the Classes Deck, Player, Table, and Bot.
 """
 
 from random import randint  # Used for shuffling and popping off random cards
+import bot
 
 
 class Deck:
@@ -483,3 +484,6 @@ class Bot(Player):
         Runtime: O(1)
         """
         return 'Bot'
+
+    def bet(self, current_call, table, can_raise=True):
+        return bot.bot_bet(current_call, self, table, can_raise)
