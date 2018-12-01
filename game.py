@@ -3,6 +3,7 @@ This file sets up all the global variables needed for the pygame visualization
 """
 import pygame
 import enum
+import os
 
 from card import Deck, Table, Player, Bot
 
@@ -90,7 +91,7 @@ class Game:
 
     def init(self):
         pygame.init()  # setup pygame
-
+        
         self.window = pygame.display.set_mode((self.width, self.height))  # initializes the window
         pygame.display.set_caption("Texas Holdem")  # Title of window
 

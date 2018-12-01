@@ -1,3 +1,5 @@
+import contextlib
+import io
 import unittest
 import sys
 import os
@@ -32,8 +34,19 @@ class WinningHandTestCase(unittest.TestCase):
         self.table = Table()
 
     def test_printable_dict_of_winners(self):
-        # TODO: Implementation
-        pass
+
+        WinningHandTestCase.issue_cards(self.player1, [(2, 'Spades'), (2, 'Clubs')])
+        WinningHandTestCase.issue_cards(
+            self.table, [(4, 'Spades'), (5, 'Spades'), (6, 'Spades'), (2, 'Diamonds'), (8, 'Hearts')])
+
+        stdout_capture = io.StringIO()
+        with contextlib.redirect_stdout(stdout_capture):
+            winning_hand.printable_dict_of_winners(self.table, [self.player1])
+
+        expected_output = str({self.player1.get_ID(): "Three of a kind"})
+        output = stdout_capture.getvalue().strip()
+
+        self.assertEqual(expected_output, output)
 
     def test_winner_player1(self):
 
@@ -51,7 +64,7 @@ class WinningHandTestCase(unittest.TestCase):
         WinningHandTestCase.issue_cards(
             self.table, [(4, 'Spades'), (5, 'Spades'), (6, 'Spades'), (2, 'Diamonds'), (8, 'Hearts')])
 
-        self.assertEqual(self.player2, winning_hand.winner(self.table, [self.player1, self.player2], printing=False))
+        self.assertEqual(self.player2, winning_hand.winner(self.table, [self.player1, self.player2], printing=True))
 
     def test_get_value_royal_flush(self):
 
@@ -196,6 +209,24 @@ class WinningHandTestCase(unittest.TestCase):
 
         self.assertFalse(winning_hand.if_straight_is_flush(straight, self.table, self.player1))
 
+    def test_if_straight_flush5(self):
+
+        straight = [1, 2, 3, 4, 5]
+        WinningHandTestCase.issue_cards(self.player1, [(5, 'Clubs'), (14, 'Clubs')])
+        WinningHandTestCase.issue_cards(
+            self.table, [(2, 'Clubs'), (3, 'Clubs'), (4, 'Clubs'), (8, 'Hearts'), (11, 'Diamonds')])
+
+        self.assertTrue(winning_hand.if_straight_is_flush(straight, self.table, self.player1))
+
+    def test_if_straight_flush6(self):
+
+        straight = [1, 2, 3, 4, 5]
+        WinningHandTestCase.issue_cards(self.player1, [(5, 'InvalidSuit'), (14, 'InvalidSuit')])
+        WinningHandTestCase.issue_cards(self.table,
+            [(2, 'InvalidSuit'), (3, 'InvalidSuit'), (4, 'InvalidSuit'), (8, 'InvalidSuit'), (11, 'InvalidSuit')])
+
+        self.assertFalse(winning_hand.if_straight_is_flush(straight, self.table, self.player1))
+
     def test_has_straight_flush1(self):
 
         WinningHandTestCase.issue_cards(self.player1, [(9, 'Spades'), (2, 'Clubs')])
@@ -248,6 +279,14 @@ class WinningHandTestCase(unittest.TestCase):
 
         WinningHandTestCase.issue_cards(self.player1, [(2, 'Spades'), (10, 'Clubs')])
         WinningHandTestCase.issue_cards(
+            self.table, [(4, 'Spades'), (10, 'Diamonds'), (10, 'Spades'), (2, 'Diamonds'), (2, 'Clubs')])
+
+        self.assertTrue(winning_hand.has_full_house(self.table, self.player1))
+
+    def test_has_full_house1(self):
+
+        WinningHandTestCase.issue_cards(self.player1, [(2, 'Spades'), (10, 'Clubs')])
+        WinningHandTestCase.issue_cards(
             self.table, [(4, 'Spades'), (5, 'Spades'), (6, 'Spades'), (2, 'Diamonds'), (2, 'Clubs')])
 
         self.assertFalse(winning_hand.has_full_house(self.table, self.player1))
@@ -266,7 +305,15 @@ class WinningHandTestCase(unittest.TestCase):
         WinningHandTestCase.issue_cards(
             self.table, [(4, 'Spades'), (5, 'Spades'), (6, 'Clubs'), (2, 'Diamonds'), (8, 'Hearts')])
 
-        self.assertFalse(winning_hand.has_full_house(self.table, self.player1))
+        self.assertFalse(winning_hand.has_flush(self.table, self.player1))
+
+    def test_has_flush3(self):
+
+        WinningHandTestCase.issue_cards(self.player1, [(14, 'InvalidSuit'), (12, 'InvalidSuit')])
+        WinningHandTestCase.issue_cards(self.table,
+            [(4, 'InvalidSuit'), (5, 'InvalidSuit'), (6, 'InvalidSuit'), (2, 'InvalidSuit'), (8, 'InvalidSuit')])
+
+        self.assertFalse(winning_hand.has_flush(self.table, self.player1))
 
     def test_has_straight1(self):
 

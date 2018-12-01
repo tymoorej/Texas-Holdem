@@ -75,7 +75,6 @@ def start_screen(game):
         start_label = myfont.render("Start Game", 1, black)
         game.window.blit(start_label, tuple(start_button_rect[:2]))
         pygame.display.update()
-
         # Event handling loop
         for event in game.get_events():
             if event.type == pygame.QUIT:
