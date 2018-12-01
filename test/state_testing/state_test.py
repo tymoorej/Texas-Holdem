@@ -14,9 +14,16 @@ class ExitTestException(Exception):
 
 
 class MockBot(Bot):
-    def __init__(self, playlist, cards=None):
+    def __init__(self, game, play_list, state_list, assert_equal, cards=None):
         super().__init__(cards)
-        self.play_gen = self.make_play_gen(playlist)
+        play_list = [p for p in play_list if p is not None]
+        state_list = [s for s in state_list if s is not None]
+
+        self.play_gen = self.make_play_gen(play_list)
+        self.state_gen = self.make_state_gen(state_list)
+
+        self.game = game
+        self.assert_equal = assert_equal
 
     @staticmethod
     def make_play_gen(playlist):
@@ -24,7 +31,19 @@ class MockBot(Bot):
             yield p
         raise ExitTestException()
 
+    @staticmethod
+    def make_state_gen(state_list):
+        for s in state_list:
+            yield s
+        raise ExitTestException()
+
+    def assert_state(self, game):
+        expected_state = next(self.state_gen)
+        if expected_state is not None:
+            self.assert_equal(expected_state, game.state)
+
     def bet(self, current_call, table, can_raise=True):
+        self.assert_state(self.game)
         play = next(self.play_gen)
 
         if play == BotAction.CALL:
@@ -43,14 +62,13 @@ class MockBot(Bot):
 class PreDeterminedGame(Game):
     def __init__(self, event_list, assert_equal):
         """
-        :param event_list: A list of tuples (player_event, bot_event) to be played
+        :param event_list: A list of tuples (expected_player_state, player_event, expected_bot_state, bot_event) to be played
         """
         super().__init__()
-        state_asserts, player_events, bot_events,  = zip(*event_list)
-        bot_events = [e for e in bot_events if e is not None]
+        state_asserts, bot_asserts, player_events, bot_events  = zip(*event_list)
         self.state_gen = self.make_state_gen(state_asserts)
         self.event_gen = self.make_event_gen(player_events)
-        self.bot = MockBot(bot_events)
+        self.bot = MockBot(self, bot_events, bot_asserts, assert_equal)
         self.assert_equal = assert_equal
 
     @staticmethod
@@ -90,7 +108,7 @@ class StateTestCase(unittest.TestCase):
 
     def test_start(self):
         game = PreDeterminedGame([
-            (GameState.START, start(), None)
+            (GameState.START, None, start(), None)
         ], self.assertEqual)
 
         try:
@@ -103,8 +121,8 @@ class StateTestCase(unittest.TestCase):
 
     def test_check(self):
         game = PreDeterminedGame([
-            (GameState.START, start(), None),
-            (GameState.PLAYER_PREFLOP_OPEN, check(), bot_check())
+            (GameState.START, None, start(), None),
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check())
         ], self.assertEqual)
 
         try:
@@ -117,9 +135,9 @@ class StateTestCase(unittest.TestCase):
 
     def test_bet(self):
         game = PreDeterminedGame([
-            (GameState.START, start(), None),
-            (GameState.PLAYER_PREFLOP_OPEN, check(), bot_check()),
-            (GameState.PLAYER_FLOP_OPEN, bet(300), bot_call())
+            (GameState.START, None, start(), None),
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_FORCE, bet(300), bot_call())
         ], self.assertEqual)
 
         try:
@@ -132,13 +150,13 @@ class StateTestCase(unittest.TestCase):
 
     def test_round(self):
         game = PreDeterminedGame([
-            (GameState.START, start(), None),
-            (GameState.PLAYER_PREFLOP_OPEN, check(), bot_check()),   # PREFLOP
-            (GameState.PLAYER_FLOP_OPEN, bet(300), bot_call()),      # FLOP
-            (GameState.PLAYER_TURN_OPEN, check(), bot_bet(500)),     # TURN
-            (GameState.PLAYER_TURN_FORCE, call(), None),
-            (GameState.PLAYER_RIVER_OPEN, check(), bot_check()),     # RIVER
-            (GameState.END_ROUND, done(), None)
+            (GameState.START, None, start(), None),
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),   # PREFLOP
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_FORCE, bet(300), bot_call()),      # FLOP
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_bet(500)),     # TURN
+            (GameState.PLAYER_TURN_FORCE, None, call(), None),
+            (GameState.PLAYER_RIVER_OPEN, GameState.BOT_RIVER_OPEN, check(), bot_check()),     # RIVER
+            (GameState.END_ROUND, None, done(), None)
         ], self.assertEqual)
 
         try:

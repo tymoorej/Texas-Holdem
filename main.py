@@ -422,6 +422,8 @@ def bet(game, player, bot, table):
                 pygame.quit()
                 quit()
 
+        game.infer_state(False, table, current_call, player.get_chips() > current_call, False)
+
         if current_call == -1:
             break
 
@@ -448,8 +450,10 @@ def bet(game, player, bot, table):
             break
 
     if player.get_chips() == 0:
+        game.set_game_state(GameState.ALL_IN)
         return 'All in', player
     if bot.get_chips() == 0:
+        game.set_game_state(GameState.ALL_IN)
         return 'All in', bot
     return True
 
