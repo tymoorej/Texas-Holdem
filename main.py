@@ -319,7 +319,6 @@ def player_bet(game, current_call, player, bot, table, can_raise=True, done=Fals
                             table.add_chips(converted_input)
                             return converted_input
 
-
         game.clock.tick(60)  # fps
 
 
@@ -432,9 +431,9 @@ def bet(game, player, bot, table):
             return current_call, player
 
         if player.get_chips() == 0:
-            current_call = bot_bet(current_call, bot, table, can_raise=False)
+            current_call = bot.bet(current_call, table, can_raise=False)
         else:
-            current_call = bot_bet(current_call, bot, table)
+            current_call = bot.bet(current_call, table)
 
         print('p: ', player.get_chips(), 'b: ', bot.get_chips(), 't: ',
               table.get_chips())

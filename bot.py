@@ -1,10 +1,8 @@
 """
 This file handels all of the betting that the bot does.
 """
-
+import card as cardsets
 from winning_hand import winner
-import itertools
-from card import *
 from random import *
 
 MONTE_CARLO_ITERATIONS = 10000
@@ -59,7 +57,7 @@ def bot_bet(current_call, bot, table, can_raise=True):
             table.add_chips(chip)  #O(m)
             return -1
 
-        if chance >= 30 and chance < 50:
+        if 30 <= chance < 50:
             print('calling')
             if current_call > bot.get_chips():
                 print('Bot goes all in')
@@ -107,7 +105,7 @@ def Monte_Carlo(bot, table):
     """
     count = 0
     for i in range(MONTE_CARLO_ITERATIONS):  #O(10,000)=O(1)
-        my_deck = Deck()
+        my_deck = cardsets.Deck()
         my_deck.remove_card(bot.get_cards()[0])  #O(n)
         my_deck.remove_card(bot.get_cards()[1])  #O(n)
 
@@ -116,12 +114,12 @@ def Monte_Carlo(bot, table):
 
         listed_deck = my_deck.get_cards()
         x = sample(listed_deck, 7 - len(table.get_cards()))
-        person = Player(0, x[0:2])
+        person = cardsets.Player(0, x[0:2])
         players = [person, bot]
-        new_table = Table(table.get_cards() + x[2:])
+        new_table = cardsets.Table(table.get_cards() + x[2:])
 
         if type(winner(new_table, players,
-                       printing=False)) is Bot:  #O(p*xlog(x) + plog(p))
+                       printing=False)) is cardsets.Bot:  #O(p*xlog(x) + plog(p))
             count += 1
 
     return count
