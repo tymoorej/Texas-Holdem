@@ -1,8 +1,8 @@
 import unittest
 import sys
 import os
-from test_utils import HandConstants as Hands
-from test_utils import StdoutCapture
+from .test_utils import HandConstants as Hands
+from .test_utils import StdoutCapture
 
 sys.path.insert(1, os.path.join(sys.path[0], '../..'))
 
