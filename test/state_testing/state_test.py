@@ -121,11 +121,11 @@ class StateTestCase(unittest.TestCase):
     def test_round(self):
         game = PreDeterminedGame([
             (start(), None),
-            (check(), bot_check()),  # PREFLOP
-            (bet(300), bot_call()),  # FLOP
-            (check(), bot_bet(500)), # TURN
+            (check(), bot_check()),   # PREFLOP
+            (bet(300), bot_call()),   # FLOP
+            (check(), bot_bet(500)),  # TURN
             (call(), None),
-            (check(), bot_check()),  # RIVER
+            (check(), bot_check()),   # RIVER
             (done(), None)
         ])
 
