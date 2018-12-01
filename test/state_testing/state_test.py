@@ -1,5 +1,4 @@
 import unittest
-import pygame
 import time
 import sys, os
 sys.path.insert(1, os.path.join(sys.path[0], '../..'))
@@ -42,15 +41,17 @@ class MockBot(Bot):
 
 
 class PreDeterminedGame(Game):
-    def __init__(self, event_list):
+    def __init__(self, event_list, assert_equal):
         """
         :param event_list: A list of tuples (player_event, bot_event) to be played
         """
         super().__init__()
-        player_events, bot_events = zip(*event_list)
+        state_asserts, player_events, bot_events,  = zip(*event_list)
         bot_events = [e for e in bot_events if e is not None]
+        self.state_gen = self.make_state_gen(state_asserts)
         self.event_gen = self.make_event_gen(player_events)
         self.bot = MockBot(bot_events)
+        self.assert_equal = assert_equal
 
     @staticmethod
     def make_event_gen(event_list):
@@ -59,8 +60,19 @@ class PreDeterminedGame(Game):
             yield e
         raise ExitTestException()
 
+    @staticmethod
+    def make_state_gen(state_list):
+        for s in state_list:
+            yield s
+        raise ExitTestException()
+
+    def assert_state(self):
+        expected_state = next(self.state_gen)
+        if expected_state is not None:
+            self.assert_equal(expected_state, self.state)
+
     def get_events(self):
-        print(self.state)
+        self.assert_state()
         next_events = next(self.event_gen)
 
         for e in next_events:
@@ -78,8 +90,8 @@ class StateTestCase(unittest.TestCase):
 
     def test_start(self):
         game = PreDeterminedGame([
-            (start(), None)
-        ])
+            (GameState.START, start(), None)
+        ], self.assertEqual)
 
         try:
             main(game)
@@ -91,24 +103,24 @@ class StateTestCase(unittest.TestCase):
 
     def test_check(self):
         game = PreDeterminedGame([
-            (start(), None),
-            (check(), bot_check())
-        ])
+            (GameState.START, start(), None),
+            (GameState.PLAYER_PREFLOP_OPEN, check(), bot_check())
+        ], self.assertEqual)
 
         try:
             main(game)
         except ExitTestException:
-            self.assertEquals(GameState.PLAYER_FLOP_OPEN, game.state)
+            self.assertEqual(GameState.PLAYER_FLOP_OPEN, game.state)
             return
 
         self.fail("Game should not have ended")
 
     def test_bet(self):
         game = PreDeterminedGame([
-            (start(), None),
-            (check(), bot_check()),
-            (bet(300), bot_call())
-        ])
+            (GameState.START, start(), None),
+            (GameState.PLAYER_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, bet(300), bot_call())
+        ], self.assertEqual)
 
         try:
             main(game)
@@ -120,14 +132,14 @@ class StateTestCase(unittest.TestCase):
 
     def test_round(self):
         game = PreDeterminedGame([
-            (start(), None),
-            (check(), bot_check()),   # PREFLOP
-            (bet(300), bot_call()),   # FLOP
-            (check(), bot_bet(500)),  # TURN
-            (call(), None),
-            (check(), bot_check()),   # RIVER
-            (done(), None)
-        ])
+            (GameState.START, start(), None),
+            (GameState.PLAYER_PREFLOP_OPEN, check(), bot_check()),   # PREFLOP
+            (GameState.PLAYER_FLOP_OPEN, bet(300), bot_call()),      # FLOP
+            (GameState.PLAYER_TURN_OPEN, check(), bot_bet(500)),     # TURN
+            (GameState.PLAYER_TURN_FORCE, call(), None),
+            (GameState.PLAYER_RIVER_OPEN, check(), bot_check()),     # RIVER
+            (GameState.END_ROUND, done(), None)
+        ], self.assertEqual)
 
         try:
             main(game)

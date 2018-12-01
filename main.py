@@ -132,6 +132,7 @@ def player_bet(game, current_call, player, bot, table, can_raise=True, done=Fals
         facedown = pygame.image.load("PNG-cards-1.3/" + "facedown.jpg")
         facedown = pygame.transform.scale(facedown, (100, 145))
     if done:
+        game.set_game_state(GameState.END_ROUND)
         card1 = bot.get_cards()[0]
         card2 = bot.get_cards()[1]
         name1 = get_file_name(card1)
