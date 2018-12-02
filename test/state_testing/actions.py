@@ -69,3 +69,9 @@ def bot_fold():
 
 def bot_allin():
     return BotAction.ALLIN
+
+
+def hit_all_round_states(post_event_list):
+    # pfpo = []
+    # pfbo = [pfbo, ]
+    pass

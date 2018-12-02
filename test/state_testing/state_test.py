@@ -82,7 +82,7 @@ class PreDeterminedGame(Game):
     @staticmethod
     def make_event_gen(event_list):
         for e in event_list:
-            time.sleep(1)
+            # time.sleep(1)
             yield e
         raise ExitTestException()
 
@@ -102,7 +102,10 @@ class PreDeterminedGame(Game):
         self.assert_state()
 
         if next_events[0] == PlayerAction.ALLIN:
-            next_events = bet(self.player.get_chips())
+            # MAJOR HACK: Only works if the bot bets a maximum of once before we go all in
+            # This only works because of the specific way we traverse the state graph in
+            # our allin testing and that we don't go allin in other situations
+            next_events = bet(self.player.get_chips() - self.table.get_chips())
 
         for e in next_events:
             if e.type == pygame.MOUSEBUTTONDOWN:
@@ -196,6 +199,224 @@ class StateTestCase(unittest.TestCase):
 
         self.fail("Game should not have ended")
 
+    def test_folds(self):
+        game = PreDeterminedGame([
+            (GameState.START, None, start(), None),
+
+            # PLAYER_PREFLOP_OPEN
+            (GameState.PLAYER_PREFLOP_OPEN, None, fold(), None),
+            (GameState.END_ROUND, None, done(), None),
+
+            # BOT_PREFLOP_OPEN
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_fold()),
+            (GameState.END_ROUND, None, done(), None),
+
+            # PLAYER_PREFLOP_FORCE
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_bet(100)),
+            (GameState.PLAYER_PREFLOP_FORCE, None, fold(), None),
+            (GameState.END_ROUND, None, done(), None),
+
+            # BOT_PREFLOP_FORCE
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_FORCE, bet(100), bot_fold()),
+            (GameState.END_ROUND, None, done(), None),
+
+            # PLAYER_FLOP_OPEN
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, None, fold(), None),
+            (GameState.END_ROUND, None, done(), None),
+
+            # BOT_FLOP_OPEN
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_fold()),
+            (GameState.END_ROUND, None, done(), None),
+
+            # PLAYER_FLOP_FORCE
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_bet(100)),
+            (GameState.PLAYER_FLOP_FORCE, None, fold(), None),
+            (GameState.END_ROUND, None, done(), None),
+
+            # BOT_FLOP_FORCE
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_FORCE, bet(100), bot_fold()),
+            (GameState.END_ROUND, None, done(), None),
+
+            # PLAYER_TURN_OPEN
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_TURN_OPEN, None, fold(), None),
+            (GameState.END_ROUND, None, done(), None),
+
+            # BOT_TURN_OPEN
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_fold()),
+            (GameState.END_ROUND, None, done(), None),
+
+            # PLAYER_TURN_FORCE
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_bet(100)),
+            (GameState.PLAYER_TURN_FORCE, None, fold(), None),
+            (GameState.END_ROUND, None, done(), None),
+
+            # BOT_TURN_FORCE
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_FORCE, bet(100), bot_fold()),
+            (GameState.END_ROUND, None, done(), None),
+
+            # PLAYER_RIVER_OPEN
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_check()),
+            (GameState.PLAYER_RIVER_OPEN, None, fold(), None),
+            (GameState.END_ROUND, None, done(), None),
+
+            # BOT_RIVER_OPEN
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_check()),
+            (GameState.PLAYER_RIVER_OPEN, GameState.BOT_RIVER_OPEN, check(), bot_fold()),
+            (GameState.END_ROUND, None, done(), None),
+
+            # PLAYER_RIVER_FORCE
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_check()),
+            (GameState.PLAYER_RIVER_OPEN, GameState.BOT_RIVER_OPEN, check(), bot_bet(100)),
+            (GameState.PLAYER_RIVER_FORCE, None, fold(), None),
+            (GameState.END_ROUND, None, done(), None),
+
+            # BOT_RIVER_FORCE
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_check()),
+            (GameState.PLAYER_RIVER_OPEN, GameState.BOT_RIVER_FORCE, bet(100), bot_fold()),
+            (GameState.END_ROUND, None, done(), None)
+        ], self.assertEqual)
+
+        try:
+            main(game)
+        except ExitTestException:
+            self.assertEqual(game.state, GameState.PLAYER_PREFLOP_OPEN)
+            return
+
+        self.fail("Game should not have ended")
+
+    def test_allins(self):
+        game = PreDeterminedGame([
+            (GameState.START, None, start(), None),
+
+            # PLAYER_PREFLOP_OPEN
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.ALL_IN, allin(), bot_fold()),
+            (GameState.END_ROUND, None, done(), None),
+
+            # BOT_PREFLOP_OPEN
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_allin()),
+            (GameState.ALL_IN, None, fold(), None),
+            (GameState.END_ROUND, None, done(), None),
+
+            # PLAYER_PREFLOP_FORCE
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_bet(100)),
+            (GameState.PLAYER_PREFLOP_FORCE, GameState.ALL_IN, allin(), bot_fold()),
+            (GameState.END_ROUND, None, done(), None),
+
+            # BOT_PREFLOP_FORCE
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_FORCE, bet(100), bot_allin()),
+            (GameState.ALL_IN, None, fold(), None),
+            (GameState.END_ROUND, None, done(), None),
+
+            # PLAYER_FLOP_OPEN
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.ALL_IN, allin(), bot_fold()),
+            (GameState.END_ROUND, None, done(), None),
+
+            # BOT_FLOP_OPEN
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_allin()),
+            (GameState.ALL_IN, None, fold(), None),
+            (GameState.END_ROUND, None, done(), None),
+
+            # PLAYER_FLOP_FORCE
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_bet(100)),
+            (GameState.PLAYER_FLOP_FORCE, GameState.ALL_IN, allin(), bot_fold()),
+            (GameState.END_ROUND, None, done(), None),
+
+            # BOT_FLOP_FORCE
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_FORCE, bet(100), bot_allin()),
+            (GameState.ALL_IN, None, fold(), None),
+            (GameState.END_ROUND, None, done(), None),
+
+            # PLAYER_TURN_OPEN
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_TURN_OPEN, GameState.ALL_IN, allin(), bot_fold()),
+            (GameState.END_ROUND, None, done(), None),
+
+            # BOT_TURN_OPEN
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_allin()),
+            (GameState.ALL_IN, None, fold(), None),
+            (GameState.END_ROUND, None, done(), None),
+
+            # PLAYER_TURN_FORCE
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_bet(100)),
+            (GameState.PLAYER_TURN_FORCE, GameState.ALL_IN, allin(), bot_fold()),
+            (GameState.END_ROUND, None, done(), None),
+
+            # BOT_TURN_FORCE
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_FORCE, bet(100), bot_allin()),
+            (GameState.ALL_IN, None, fold(), None),
+            (GameState.END_ROUND, None, done(), None),
+
+            # PLAYER_RIVER_OPEN
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_check()),
+            (GameState.PLAYER_RIVER_OPEN, GameState.ALL_IN, allin(), bot_fold()),
+            (GameState.END_ROUND, None, done(), None),
+
+            # BOT_RIVER_OPEN
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_check()),
+            (GameState.PLAYER_RIVER_OPEN, GameState.BOT_RIVER_OPEN, check(), bot_allin()),
+            (GameState.ALL_IN, None, fold(), None),
+            (GameState.END_ROUND, None, done(), None),
+
+            # PLAYER_RIVER_FORCE
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_check()),
+            (GameState.PLAYER_RIVER_OPEN, GameState.BOT_RIVER_OPEN, check(), bot_bet(100)),
+            (GameState.PLAYER_RIVER_FORCE, GameState.ALL_IN, allin(), bot_fold()),
+            (GameState.END_ROUND, None, done(), None),
+
+            # BOT_RIVER_FORCE
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_check()),
+            (GameState.PLAYER_RIVER_OPEN, GameState.BOT_RIVER_FORCE, bet(100), bot_allin()),
+            (GameState.ALL_IN, None, fold(), None),
+            (GameState.END_ROUND, None, done(), None)
+        ], self.assertEqual)
+
+        try:
+            main(game)
+        except ExitTestException:
+            self.assertEqual(game.state, GameState.PLAYER_PREFLOP_OPEN)
+            return
+
+        self.fail("Game should not have ended")
+
     def test_win_player_all_in(self):
         game = PreDeterminedGame([
             (GameState.START, None, start(), None),
@@ -226,54 +447,6 @@ class StateTestCase(unittest.TestCase):
             return
 
         self.fail("Game should not have ended")
-
-    # def test_check(self):
-    #     game = PreDeterminedGame([
-    #         (GameState.START, None, start(), None),
-    #         (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check())
-    #     ], self.assertEqual)
-    #
-    #     try:
-    #         main(game)
-    #     except ExitTestException:
-    #         self.assertEqual(GameState.PLAYER_FLOP_OPEN, game.state)
-    #         return
-    #
-    #     self.fail("Game should not have ended")
-    #
-    # def test_bet(self):
-    #     game = PreDeterminedGame([
-    #         (GameState.START, None, start(), None),
-    #         (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
-    #         (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_FORCE, bet(300), bot_call())
-    #     ], self.assertEqual)
-    #
-    #     try:
-    #         main(game)
-    #     except ExitTestException:
-    #         self.assertEquals(GameState.PLAYER_TURN_OPEN, game.state)
-    #         return
-    #
-    #     self.fail("Game should not have ended")
-    #
-    # def test_round(self):
-    #     game = PreDeterminedGame([
-    #         (GameState.START, None, start(), None),
-    #         (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),   # PREFLOP
-    #         (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_FORCE, bet(300), bot_call()),      # FLOP
-    #         (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_bet(500)),     # TURN
-    #         (GameState.PLAYER_TURN_FORCE, None, call(), None),
-    #         (GameState.PLAYER_RIVER_OPEN, GameState.BOT_RIVER_OPEN, check(), bot_check()),     # RIVER
-    #         (GameState.END_ROUND, None, done(), None)
-    #     ], self.assertEqual)
-    #
-    #     try:
-    #         main(game)
-    #     except ExitTestException:
-    #         self.assertEquals(GameState.PLAYER_PREFLOP_OPEN, game.state)
-    #         return
-    #
-    #     self.fail("Game should not have ended")
 
     def tearDown(self):
         pygame.quit()

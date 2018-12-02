@@ -119,7 +119,7 @@ class Game:
             self.set_game_state(GameState.ALL_IN)
             return
 
-        self.set_game_state(GameState.calc_state(table, player_turn, current_call > 0))
+        self.set_game_state(GameState.calc_state(table, player_turn, type(current_call) is int and current_call > 0))
         return
 
     def get_events(self):

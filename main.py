@@ -370,7 +370,7 @@ def bet_call(game, player, bot, table):
             skip_to_end = 1
             return skip_to_end
 
-        if type(d[1]) is Bot:
+        if type(d[1]) is Bot or issubclass(type(d[1]), Bot):
             table.give_pot(player)
         if type(d[1]) is Player:
             table.give_pot(bot)
@@ -418,7 +418,8 @@ def bet(game, player, bot, table):
             if game.is_over():
                 game.end_game()
 
-        game.infer_state(False, table, current_call, player.get_chips() > current_call, False)
+        game.infer_state(False, table, current_call,
+                         player.get_chips() > current_call if type(current_call) is int else False, False)
 
         if current_call == -1:
             break
