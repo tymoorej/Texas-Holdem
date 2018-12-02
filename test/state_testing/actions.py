@@ -2,8 +2,14 @@ import pygame
 import enum
 
 
+class PlayerAction(enum.Enum):
+    ALLIN = -1
+
+
 class BotAction(enum.Enum):
     CALL = 4
+    FOLD = 5
+    ALLIN = 6
 
 
 def click(click_pos):
@@ -23,6 +29,10 @@ def bet(amt):
     bet_events.append(pygame.event.Event(pygame.KEYDOWN, {'unicode': '\n', 'key': pygame.K_RETURN}))
 
     return bet_events
+
+
+def allin():
+    return [PlayerAction.ALLIN]
 
 
 def check():
@@ -54,4 +64,8 @@ def bot_call():
 
 
 def bot_fold():
-    return 'Fold'
+    return BotAction.FOLD
+
+
+def bot_allin():
+    return BotAction.ALLIN
