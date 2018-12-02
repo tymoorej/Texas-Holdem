@@ -240,8 +240,7 @@ def player_bet(game, current_call, player, bot, table, can_raise=True, done=Fals
             if player.get_chips() == 0:
                 win = myfont.render("Bot is the winner!", 1, white)
                 game.window.blit(win, (10, 500))
-
-            if bot.get_chips() == 0:
+            elif bot.get_chips() == 0:
                 win = myfont.render("Player is the winner!", 1, white)
                 game.window.blit(win, (10, 500))
 
@@ -311,7 +310,6 @@ def player_bet(game, current_call, player, bot, table, can_raise=True, done=Fals
                         else:
                             player.remove_chips(converted_input + current_call)
                             table.add_chips(converted_input + current_call)
-                            # game.set_game_state()
                             return converted_input
                     if Bet:
                         if converted_input > player.get_chips():
@@ -414,13 +412,11 @@ def bet(game, player, bot, table):
         if bot.get_chips() == 0:
             current_call = player_bet(game, current_call, player, bot, table, can_raise=False)
             if game.is_over():
-                pygame.quit()
-                quit()
+                game.end_game()
         else:
             current_call = player_bet(game, current_call, player, bot, table)
             if game.is_over():
-                pygame.quit()
-                quit()
+                game.end_game()
 
         game.infer_state(False, table, current_call, player.get_chips() > current_call, False)
 
@@ -474,8 +470,7 @@ def setup(game):
     """
     start_screen(game)  # Runtime dependent on user input
     if game.is_over():
-        pygame.quit()
-        quit()
+        game.end_game()
 
 
 def end_of_round(cards, table, player, bot, skip):
@@ -535,8 +530,8 @@ def main(game):
         end_of_round(game.cards, game.table, game.player, game.bot, skip)
         player_bet(game, 0, game.player, game.bot, game.table, done=True)
         if game.is_over() or game.player.get_chips() <= 0 or game.bot.get_chips() <= 0:
-            pygame.quit()
-            quit()
+            game.set_game_state(GameState.WIN)
+            game.end_game()
         game.cards.collect([game.player, game.bot, game.table])
 
 

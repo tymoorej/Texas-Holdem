@@ -46,15 +46,23 @@ class MockBot(Bot):
         self.assert_state(self.game)
         play = next(self.play_gen)
 
+        if play == BotAction.FOLD:
+            return 'Fold'
+
         if play == BotAction.CALL:
             chip = min(current_call, self.get_chips())
             self.remove_chips(chip)
-            table.add_chips(chip)
+            table.add_chips(current_call + chip)
             return -1
 
-        if play is int:
-            self.remove_chips(play + current_call)
-            table.add_chips(play + current_call)
+        if play == BotAction.ALLIN:
+            chip = self.get_chips()
+            self.remove_chips(chip)
+            table.add_chips(chip)
+            return chip
+
+        self.remove_chips(play + current_call)
+        table.add_chips(play + current_call)
 
         return play
 
@@ -90,15 +98,20 @@ class PreDeterminedGame(Game):
             self.assert_equal(expected_state, self.state)
 
     def get_events(self):
-        self.assert_state()
         next_events = next(self.event_gen)
+        self.assert_state()
+
+        if next_events[0] == PlayerAction.ALLIN:
+            next_events = bet(self.player.get_chips())
 
         for e in next_events:
-            print(e)
             if e.type == pygame.MOUSEBUTTONDOWN:
                 pygame.mouse.set_pos(*e.dict['pos'])
 
         return pygame.event.get() + next_events
+
+    def end_game(self):
+        raise ExitTestException()
 
 
 class StateTestCase(unittest.TestCase):
@@ -106,66 +119,161 @@ class StateTestCase(unittest.TestCase):
     def __init__(self, *args):
         super().__init__(*args)
 
-    def test_start(self):
-        game = PreDeterminedGame([
-            (GameState.START, None, start(), None)
-        ], self.assertEqual)
-
-        try:
-            main(game)
-        except ExitTestException:
-            self.assertEqual(game.state, GameState.PLAYER_PREFLOP_OPEN)
-            return
-
-        self.fail("Game should not have ended")
-
-    def test_check(self):
+    def test_player_bet_bot_call(self):
         game = PreDeterminedGame([
             (GameState.START, None, start(), None),
-            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check())
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_FORCE, bet(5), bot_call()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_FORCE, bet(5), bot_call()),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_FORCE, bet(5), bot_call()),
+            (GameState.PLAYER_RIVER_OPEN, GameState.BOT_RIVER_FORCE, bet(5), bot_call())
         ], self.assertEqual)
 
         try:
             main(game)
         except ExitTestException:
-            self.assertEqual(GameState.PLAYER_FLOP_OPEN, game.state)
+            self.assertEqual(game.state, GameState.END_ROUND)
             return
 
         self.fail("Game should not have ended")
 
-    def test_bet(self):
+    def test_bot_bet_player_call(self):
+        game = PreDeterminedGame([
+            (GameState.START, None, start(), None),
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_bet(100)),
+            (GameState.PLAYER_PREFLOP_FORCE, None, call(), None),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_bet(100)),
+            (GameState.PLAYER_FLOP_FORCE, None, call(), None),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_bet(100)),
+            (GameState.PLAYER_TURN_FORCE, None, call(), None),
+            (GameState.PLAYER_RIVER_OPEN, GameState.BOT_RIVER_OPEN, check(), bot_bet(100)),
+            (GameState.PLAYER_RIVER_FORCE, None, call(), None)
+        ], self.assertEqual)
+
+        try:
+            main(game)
+        except ExitTestException:
+            self.assertEqual(game.state, GameState.END_ROUND)
+            return
+
+        self.fail("Game should not have ended")
+
+    def test_bet_raise_raise_call(self):
+        game = PreDeterminedGame([
+            (GameState.START, None, start(), None),
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_FORCE, bet(100), bot_bet(100)),
+            (GameState.PLAYER_PREFLOP_FORCE, GameState.BOT_PREFLOP_FORCE, bet(100), bot_call()),
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_FORCE, bet(100), bot_bet(100)),
+            (GameState.PLAYER_FLOP_FORCE, GameState.BOT_FLOP_FORCE, bet(100), bot_call()),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_FORCE, bet(100), bot_bet(100)),
+            (GameState.PLAYER_TURN_FORCE, GameState.BOT_TURN_FORCE, bet(100), bot_call()),
+            (GameState.PLAYER_RIVER_OPEN, GameState.BOT_RIVER_FORCE, bet(100), bot_bet(100)),
+            (GameState.PLAYER_RIVER_FORCE, GameState.BOT_RIVER_FORCE, bet(100), bot_call())
+        ], self.assertEqual)
+
+        try:
+            main(game)
+        except ExitTestException:
+            self.assertEqual(game.state, GameState.END_ROUND)
+            return
+
+        self.fail("Game should not have ended")
+
+    def test_checks(self):
         game = PreDeterminedGame([
             (GameState.START, None, start(), None),
             (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
-            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_FORCE, bet(300), bot_call())
+            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_OPEN, check(), bot_check()),
+            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_check()),
+            (GameState.PLAYER_RIVER_OPEN, GameState.BOT_RIVER_OPEN, check(), bot_check())
+
         ], self.assertEqual)
 
         try:
             main(game)
         except ExitTestException:
-            self.assertEquals(GameState.PLAYER_TURN_OPEN, game.state)
+            self.assertEqual(game.state, GameState.END_ROUND)
             return
 
         self.fail("Game should not have ended")
 
-    def test_round(self):
+    def test_win_player_all_in(self):
         game = PreDeterminedGame([
             (GameState.START, None, start(), None),
-            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),   # PREFLOP
-            (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_FORCE, bet(300), bot_call()),      # FLOP
-            (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_bet(500)),     # TURN
-            (GameState.PLAYER_TURN_FORCE, None, call(), None),
-            (GameState.PLAYER_RIVER_OPEN, GameState.BOT_RIVER_OPEN, check(), bot_check()),     # RIVER
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.ALL_IN, allin(), bot_call()),
             (GameState.END_ROUND, None, done(), None)
         ], self.assertEqual)
 
         try:
             main(game)
         except ExitTestException:
-            self.assertEquals(GameState.PLAYER_PREFLOP_OPEN, game.state)
+            self.assertEqual(game.state, GameState.WIN)
             return
 
         self.fail("Game should not have ended")
+
+    def test_win_bot_all_in(self):
+        game = PreDeterminedGame([
+            (GameState.START, None, start(), None),
+            (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_allin()),
+            (GameState.ALL_IN, None, call(), None),
+            (GameState.END_ROUND, None, done(), None)
+        ], self.assertEqual)
+
+        try:
+            main(game)
+        except ExitTestException:
+            self.assertEqual(game.state, GameState.WIN)
+            return
+
+        self.fail("Game should not have ended")
+
+    # def test_check(self):
+    #     game = PreDeterminedGame([
+    #         (GameState.START, None, start(), None),
+    #         (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check())
+    #     ], self.assertEqual)
+    #
+    #     try:
+    #         main(game)
+    #     except ExitTestException:
+    #         self.assertEqual(GameState.PLAYER_FLOP_OPEN, game.state)
+    #         return
+    #
+    #     self.fail("Game should not have ended")
+    #
+    # def test_bet(self):
+    #     game = PreDeterminedGame([
+    #         (GameState.START, None, start(), None),
+    #         (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),
+    #         (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_FORCE, bet(300), bot_call())
+    #     ], self.assertEqual)
+    #
+    #     try:
+    #         main(game)
+    #     except ExitTestException:
+    #         self.assertEquals(GameState.PLAYER_TURN_OPEN, game.state)
+    #         return
+    #
+    #     self.fail("Game should not have ended")
+    #
+    # def test_round(self):
+    #     game = PreDeterminedGame([
+    #         (GameState.START, None, start(), None),
+    #         (GameState.PLAYER_PREFLOP_OPEN, GameState.BOT_PREFLOP_OPEN, check(), bot_check()),   # PREFLOP
+    #         (GameState.PLAYER_FLOP_OPEN, GameState.BOT_FLOP_FORCE, bet(300), bot_call()),      # FLOP
+    #         (GameState.PLAYER_TURN_OPEN, GameState.BOT_TURN_OPEN, check(), bot_bet(500)),     # TURN
+    #         (GameState.PLAYER_TURN_FORCE, None, call(), None),
+    #         (GameState.PLAYER_RIVER_OPEN, GameState.BOT_RIVER_OPEN, check(), bot_check()),     # RIVER
+    #         (GameState.END_ROUND, None, done(), None)
+    #     ], self.assertEqual)
+    #
+    #     try:
+    #         main(game)
+    #     except ExitTestException:
+    #         self.assertEquals(GameState.PLAYER_PREFLOP_OPEN, game.state)
+    #         return
+    #
+    #     self.fail("Game should not have ended")
 
     def tearDown(self):
         pygame.quit()

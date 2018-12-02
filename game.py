@@ -44,6 +44,7 @@ class GameState(enum.Enum):
     BOT_RIVER_FORCE = 15
     ALL_IN = 17
     END_ROUND = 18
+    WIN = 19
 
     @staticmethod
     def state_from_types(round_type, player_type, force):
@@ -126,3 +127,7 @@ class Game:
 
     def is_over(self):
         return self.game_over
+
+    def end_game(self):
+        pygame.quit()
+        quit()
