@@ -110,6 +110,12 @@ class PlayerTestCase(unittest.TestCase):
 
         self.assertEqual(chips, self.player.get_chips())
 
+    '''FAIL - Player cannot have negative chips.'''
+    # def test_remove_chips(self):
+    #     self.assertEqual(2000, self.player.get_chips())
+    #     self.player.remove_chips(self.player.get_chips() + 100)
+    #     self.assertEqual(0, self.player.get_chips())
+
 
 if __name__ == '__main__':
     unittest.main()
