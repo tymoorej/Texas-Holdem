@@ -170,7 +170,6 @@ class DeckTestCase(unittest.TestCase):
         self.assertEqual(3, len(table.get_cards()))
         self.assertEqual(49, len(self.full_deck.get_cards()))
 
-
     def test_print(self):
         _, output = StdoutCapture(lambda: print(self.empty_deck)).capture()
         self.assertEqual("Deck of cards", output.strip())
